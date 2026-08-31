@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.venv/
+datos/*.duckdb
+crudos/*.parcial.json
