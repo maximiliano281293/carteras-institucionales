@@ -1,0 +1,419 @@
+<title>Carteras de las Siefores</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ground:#f7f7f4; --surface:#fcfcfb; --raised:#ffffff;
+  --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --rule:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+  --accent:#2a78d6; --warn:#ec835a;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --ground:#0d0d0d; --surface:#1a1a19; --raised:#1f1f1e;
+  --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --rule:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+  --accent:#3987e5; --warn:#ec835a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0d0d0d; --surface:#1a1a19; --raised:#1f1f1e;
+  --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --rule:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+  --accent:#3987e5; --warn:#ec835a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:36px 24px 64px;display:flex;flex-direction:column;gap:22px}
+
+header{display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--rule);padding-bottom:20px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)}
+h1{margin:0;font-size:27px;font-weight:600;letter-spacing:-.015em;text-wrap:balance}
+.sub{color:var(--ink2);max-width:66ch}
+
+.note{background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--warn);
+  border-radius:3px;padding:14px 16px;display:flex;flex-direction:column;gap:7px}
+.note h2{margin:0;font-size:13px;font-weight:600;letter-spacing:.01em}
+.note p{margin:0;color:var(--ink2);font-size:13px;max-width:78ch}
+.note b{font-weight:600;color:var(--ink)}
+
+.controls{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-family:var(--sans);font-size:12.5px;padding:5px 11px;border:1px solid var(--rule);
+  background:var(--surface);color:var(--ink2);border-radius:2px;cursor:pointer;transition:.12s}
+.chip:hover{border-color:var(--axis);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.chip:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select{font-family:var(--sans);font-size:13px;padding:6px 9px;background:var(--surface);
+  color:var(--ink);border:1px solid var(--rule);border-radius:2px}
+
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:20px}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+.panel-head h2{margin:0;font-size:15px;font-weight:600}
+.panel-head .hint{font-size:12px;color:var(--muted)}
+.chartbox{position:relative;width:100%}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.grid line{stroke:var(--rule);stroke-width:1}
+.base{stroke:var(--axis);stroke-width:1}
+.ref{stroke:var(--ink2);stroke-width:1.5;stroke-dasharray:5 4}
+.tick{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+.reflab{font-family:var(--mono);font-size:10.5px;fill:var(--ink2)}
+.band{stroke:var(--surface);stroke-width:2}
+.ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.cross{stroke:var(--ink2);stroke-width:1}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:14px;padding-top:14px;border-top:1px solid var(--rule)}
+.lg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink2)}
+.sw{width:11px;height:11px;border-radius:2px;flex:none}
+.lg .v{font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;margin-left:2px}
+
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;background:var(--raised);
+  border:1px solid var(--ring);border-radius:3px;padding:10px 12px;font-size:12px;min-width:210px;
+  box-shadow:0 6px 22px rgba(0,0,0,.13);z-index:5}
+.tip .th{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:7px;
+  letter-spacing:.05em;text-transform:uppercase}
+.tip .r{display:flex;align-items:center;gap:7px;padding:1.5px 0}
+.tip .r .nm{flex:1;color:var(--ink2)}
+.tip .r .vv{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.tip .tot{margin-top:7px;padding-top:7px;border-top:1px solid var(--rule);display:flex;gap:7px}
+.tip .tot .nm{flex:1;color:var(--ink2)}
+.tip .tot .vv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500}
+
+details.tbl{background:var(--surface);border:1px solid var(--rule);border-radius:3px}
+details.tbl summary{cursor:pointer;padding:13px 20px;font-size:13px;font-weight:500;list-style:none}
+details.tbl summary::-webkit-details-marker{display:none}
+details.tbl summary::before{content:"▸ ";color:var(--muted)}
+details.tbl[open] summary::before{content:"▾ "}
+.tblscroll{overflow-x:auto;max-height:440px;overflow-y:auto;border-top:1px solid var(--rule)}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th,td{padding:5px 11px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th{position:sticky;top:0;background:var(--surface);font-weight:500;color:var(--ink2);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;text-align:right}
+td{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink2)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+td.na{color:var(--muted)}
+
+footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);padding-top:16px;
+  display:flex;flex-direction:column;gap:5px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:640px){.wrap{padding:24px 14px 48px}h1{font-size:22px}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">CONSAR · SISET · Siefores Generacionales</div>
+  <h1 id="h1">Carteras de las Siefores</h1>
+  <p class="sub" id="sub"></p>
+</header>
+
+<div class="note">
+  <h2>Antes de leer las gráficas: las ocho clases no suman 100%</h2>
+  <p>CONSAR reporta cada clase como <b>porcentaje a valor de mercado sobre los activos netos</b>, no como
+  partes de una torta. Sumadas, las ocho dan una <b id="nMed"></b> — y hay meses que <b>pasan de 100%</b>
+  <span id="nMax"></span>. Es decir: ni cierran ni son disjuntas.</p>
+  <p>Por eso el área apilada lleva una <b>línea punteada en 100%</b>. La distancia entre el borde del área y
+  esa línea es lo que las ocho clases no explican del activo neto; cuando el área la rebasa, hay
+  traslape entre categorías. No se normalizó nada para forzar el cierre.</p>
+</div>
+
+<div class="controls">
+  <div class="field">
+    <label for="siefore">Siefore</label>
+    <select id="siefore"></select>
+  </div>
+  <div class="field">
+    <label id="lb-af">Administradora</label>
+    <div class="chips" id="afores" role="group" aria-labelledby="lb-af"></div>
+  </div>
+  <div class="field">
+    <label id="lb-vi">Vista</label>
+    <div class="chips" id="vistas" role="group" aria-labelledby="lb-vi">
+      <button class="chip" data-v="comp" aria-pressed="true">Composición</button>
+      <button class="chip" data-v="comp2" aria-pressed="false">Comparar afores</button>
+    </div>
+  </div>
+  <div class="field" id="claseWrap" hidden>
+    <label for="clase">Clase de activo</label>
+    <select id="clase"></select>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h2 id="chartTitle">Composición</h2>
+    <span class="hint" id="chartHint">Pasa el cursor sobre la gráfica para ver el detalle de cada mes</span>
+  </div>
+  <div class="chartbox" id="box">
+    <svg id="svg" viewBox="0 0 980 420" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="chartTitle"></svg>
+    <div class="tip" id="tip"></div>
+  </div>
+  <div class="legend" id="legend"></div>
+</div>
+
+<details class="tbl">
+  <summary>Ver los datos en tabla</summary>
+  <div class="tblscroll"><table id="table"></table></div>
+</details>
+
+<footer>
+  <div>Fuente: CONSAR, Sistema de Información Estadística (SISET) — Inversiones de las Siefores Generacionales. Publicación del 14 de agosto de 2026, cifras al cierre de julio de 2026.</div>
+  <div>CONSAR marca sus cifras como preliminares. A partir de abril de 2025 cambió el desglose por instrumento (BONDES G, FONADIN, BPAS, "Otros Gubernamental"); a nivel de clase de activo, que es lo que se grafica aquí, ese cambio no afecta la serie.</div>
+  <div>Los valores ausentes se muestran como huecos. No se imputó ningún dato.</div>
+  <div id="pie"></div>
+</footer>
+</div>
+
+<script>
+const D = __DATOS__;
+const NOMCLASE={'Mercancias':'Mercancías'};
+const nc=c=>NOMCLASE[c]||c;
+const SER=['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'];
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const etq=s=>{const d=new Date(s+'T00:00:00');return MES[d.getMonth()]+" "+String(d.getFullYear()).slice(2)};
+const etqL=s=>{const d=new Date(s+'T00:00:00');return MES[d.getMonth()]+" "+d.getFullYear()};
+
+let siefore=D.siefores.includes('Siefore 80-84')?'Siefore 80-84':D.siefores[0];
+let afore=D.afores.includes('Profuturo')?'Profuturo':D.afores[0];
+let vista='comp';
+let clase=D.clases[0];
+
+// primer indice con dato
+let i0=0;
+outer: for(let i=0;i<D.fechas.length;i++){
+  for(const s of D.siefores) for(const a of D.afores) for(const c of D.clases){
+    const v=D.series[s][a][c]; if(v&&v[i]!=null){i0=i;break outer}
+  }
+}
+const F=D.fechas.slice(i0);
+const val=(a,c)=>(D.series[siefore][a][c]||[]).slice(i0);
+
+const M={l:44,r:14,t:16,b:34}, W=980, H=420, PW=W-M.l-M.r, PH=H-M.t-M.b;
+const X=i=>M.l+(F.length<2?PW/2:i*PW/(F.length-1));
+const svg=document.getElementById('svg'), tip=document.getElementById('tip'), box=document.getElementById('box');
+const el=(t,a)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',t);for(const k in a)e.setAttribute(k,a[k]);return e};
+
+function chipsAfores(){
+  const c=document.getElementById('afores');c.innerHTML='';
+  D.afores.forEach(a=>{
+    const b=document.createElement('button');b.className='chip';b.textContent=a;
+    b.setAttribute('aria-pressed',a===afore);b.onclick=()=>{afore=a;render()};c.appendChild(b);
+  });
+}
+function selSiefores(){
+  const s=document.getElementById('siefore'); s.innerHTML='';
+  D.siefores.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;s.appendChild(o)});
+  s.value=siefore; s.onchange=e=>{siefore=e.target.value;render()};
+}
+function selClases(){
+  const s=document.getElementById('clase');s.innerHTML='';
+  D.clases.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=nc(c);s.appendChild(o)});
+  s.value=clase; s.onchange=e=>{clase=e.target.value;render()};
+}
+document.getElementById('vistas').onclick=e=>{
+  const b=e.target.closest('[data-v]'); if(!b)return;
+  vista=b.dataset.v;
+  document.querySelectorAll('#vistas .chip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===vista));
+  document.getElementById('claseWrap').hidden = vista!=='comp2';
+  render();
+};
+
+let YMAX=115;
+function ejes(ymax){
+  const g=el('g',{}); YMAX=ymax;
+  const Y=v=>M.t+PH-(v/ymax)*PH;
+  const step = ymax>60?20:(ymax>20?5:(ymax>6?2:1));
+  for(let v=0;v<=ymax;v+=step){
+    g.appendChild(el('line',{class:'grid',x1:M.l,x2:M.l+PW,y1:Y(v),y2:Y(v),stroke:cssv('--rule')}));
+    const t=el('text',{class:'tick',x:M.l-8,y:Y(v)+3.5,'text-anchor':'end'});t.textContent=v+'%';g.appendChild(t);
+  }
+  g.appendChild(el('line',{class:'base',x1:M.l,x2:M.l+PW,y1:Y(0),y2:Y(0),stroke:cssv('--axis')}));
+  let prev=null;
+  F.forEach((f,i)=>{
+    const y=f.slice(0,4);
+    if(prev!==null && y!==prev){
+      const t=el('text',{class:'tick',x:X(i),y:H-10,'text-anchor':'middle'});
+      t.textContent=y; g.appendChild(t);
+      g.appendChild(el('line',{class:'grid',x1:X(i),x2:X(i),y1:M.t,y2:M.t+PH,stroke:cssv('--rule')}));
+    }
+    prev=y;
+  });
+  return {g,Y};
+}
+
+function render(){
+  chipsAfores(); svg.innerHTML=''; tip.style.opacity=0;
+  document.getElementById('chartTitle').textContent =
+    vista==='comp' ? 'Composición · '+afore+' · '+siefore : nc(clase)+' · '+afore+' frente a las demás · '+siefore;
+  document.getElementById('chartHint').textContent =
+    vista==='comp' ? 'Área apilada sobre activos netos · la línea punteada marca el 100%'
+                   : 'La afore seleccionada, resaltada contra las otras nueve · % sobre activos netos';
+  vista==='comp' ? drawStack() : drawLines();
+  buildTable();
+}
+
+function drawStack(){
+  const cols=D.clases.map(c=>val(afore,c));
+  const tops=[], sums=[];
+  for(let i=0;i<F.length;i++){
+    let acc=0,ok=true; const col=[];
+    for(let k=0;k<8;k++){const v=cols[k][i]; if(v==null){ok=false;break} acc+=v; col.push(acc)}
+    tops.push(ok?col:null); sums.push(ok?acc:null);
+  }
+  const mx=Math.max(105,...sums.filter(v=>v!=null));
+  const ymax=Math.ceil(mx/5)*5;
+  const {g,Y}=ejes(ymax); svg.appendChild(g);
+
+  for(let k=7;k>=0;k--){
+    let d='',open=false;
+    for(let i=0;i<F.length;i++){
+      if(tops[i]==null){open=false;continue}
+      d += (open?'L':'M')+X(i)+' '+Y(tops[i][k])+' '; open=true;
+    }
+    let back='';
+    for(let i=F.length-1;i>=0;i--){
+      if(tops[i]==null)continue;
+      back += 'L'+X(i)+' '+Y(k===0?0:tops[i][k-1])+' ';
+    }
+    svg.appendChild(el('path',{d:d+back+'Z',fill:cssv(SER[k]),class:'band',stroke:cssv('--surface')}));
+  }
+  svg.appendChild(el('line',{class:'ref',x1:M.l,x2:M.l+PW,y1:Y(100),y2:Y(100),stroke:cssv('--ink2')}));
+  const rl=el('text',{class:'reflab',x:M.l+PW,y:Y(100)-7,'text-anchor':'end'});
+  rl.textContent='100% del activo neto'; svg.appendChild(rl);
+
+  leyenda(D.clases.map((c,k)=>({n:nc(c),col:cssv(SER[k])})));
+  hover(i=>{
+    if(tops[i]==null)return null;
+    const rows=D.clases.map((c,k)=>({n:nc(c),c:cssv(SER[k]),v:cols[k][i]}));
+    return {t:etqL(F[i]),rows,tot:{n:'Suma de las ocho',v:sums[i]}};
+  });
+}
+
+function drawLines(){
+  const cols=D.afores.map(a=>val(a,clase));
+  const mx=Math.max(...cols.flat().filter(v=>v!=null),1);
+  const ymax=Math.max(1,Math.ceil(mx*1.12));
+  const {g,Y}=ejes(ymax); svg.appendChild(g);
+  const gris=cssv('--axis'), acc=cssv('--s1');
+  const path=(s,cl,w,op,dash)=>{
+    let d='',open=false;
+    s.forEach((v,i)=>{ if(v==null){open=false;return} d+=(open?'L':'M')+X(i)+' '+Y(v)+' '; open=true; });
+    const p=el('path',{d,class:'ln',stroke:cl}); p.setAttribute('stroke-width',w);
+    p.style.opacity=op; if(dash)p.setAttribute('stroke-dasharray',dash); svg.appendChild(p); return p;
+  };
+  // primero las demas, en gris
+  D.afores.forEach((a,ai)=>{ if(a!==afore) path(cols[ai],gris,1.5,.55); });
+  // luego la seleccionada, encima
+  const ai=D.afores.indexOf(afore);
+  path(cols[ai],acc,2.5,1);
+  // punto y etiqueta al final de la serie resaltada
+  let last=-1; cols[ai].forEach((v,i)=>{ if(v!=null)last=i });
+  if(last>=0){
+    svg.appendChild(el('circle',{cx:X(last),cy:Y(cols[ai][last]),r:4,fill:acc,
+      stroke:cssv('--surface'),'stroke-width':2}));
+    const lb=el('text',{x:X(last)-9,y:Y(cols[ai][last])-9,'text-anchor':'end',class:'reflab'});
+    lb.textContent=afore+' '+cols[ai][last].toFixed(1)+'%'; lb.setAttribute('fill',acc);
+    svg.appendChild(lb);
+  }
+  leyenda([{n:afore,col:acc},{n:'Las otras nueve afores',col:gris}]);
+  hover(i=>({t:etqL(F[i]),
+    rows:D.afores.map((a,k)=>({n:a,c:a===afore?acc:gris,v:cols[k][i]})).filter(r=>r.v!=null)
+        .sort((x,y)=>y.v-x.v), tot:null}));
+}
+
+function leyenda(items){
+  const L=document.getElementById('legend');L.innerHTML='';
+  items.forEach(it=>{
+    const d=document.createElement('div');d.className='lg';
+    const s=document.createElement('span');s.className='sw';s.style.background=it.col;
+    if(it.dash)s.style.opacity=.85;
+    d.appendChild(s);d.appendChild(document.createTextNode(it.n));L.appendChild(d);
+  });
+}
+
+function hover(get){
+  const line=el('line',{class:'cross',y1:M.t,y2:M.t+PH,stroke:cssv('--ink2')});
+  line.style.opacity=0; svg.appendChild(line);
+  const move=ev=>{
+    const r=svg.getBoundingClientRect();
+    const px=(ev.clientX-r.left)/r.width*W;
+    let i=Math.round((px-M.l)/(PW/(F.length-1)));
+    i=Math.max(0,Math.min(F.length-1,i));
+    const data=get(i);
+    if(!data){line.style.opacity=0;tip.style.opacity=0;return}
+    line.setAttribute('x1',X(i));line.setAttribute('x2',X(i));line.style.opacity=.5;
+    let html='<div class="th">'+data.t+'</div>';
+    data.rows.forEach(rw=>{html+='<div class="r"><span class="sw" style="background:'+rw.c+'"></span>'+
+      '<span class="nm">'+rw.n+'</span><span class="vv">'+rw.v.toFixed(2)+'</span></div>'});
+    if(data.tot)html+='<div class="tot"><span class="nm">'+data.tot.n+'</span><span class="vv">'+
+      data.tot.v.toFixed(2)+'%</span></div>';
+    tip.innerHTML=html; tip.style.opacity=1;
+    const bw=box.getBoundingClientRect().width, tw=tip.offsetWidth;
+    let left=(X(i)/W)*bw+14; if(left+tw>bw)left=(X(i)/W)*bw-tw-14;
+    tip.style.left=Math.max(0,left)+'px';
+    tip.style.top=Math.max(0,Math.min(ev.clientY-box.getBoundingClientRect().top-30, box.getBoundingClientRect().height-tip.offsetHeight))+'px';
+  };
+  svg.addEventListener('mousemove',move);
+  svg.addEventListener('mouseleave',()=>{line.style.opacity=0;tip.style.opacity=0});
+}
+
+function buildTable(){
+  const t=document.getElementById('table');
+  const cs = vista==='comp' ? D.clases : D.afores;
+  const get = vista==='comp' ? (c,i)=>D.series[siefore][afore][c][i+i0] : (a,i)=>D.series[siefore][a][clase][i+i0];
+  let h='<thead><tr><th>Mes</th>'+cs.map(c=>'<th>'+nc(c)+'</th>').join('')+
+        (vista==='comp'?'<th>Suma</th>':'')+'</tr></thead><tbody>';
+  for(let i=F.length-1;i>=0;i--){
+    let s=0,ok=true;
+    h+='<tr><td>'+etqL(F[i])+'</td>';
+    cs.forEach(c=>{const v=get(c,i); if(v==null){ok=false;h+='<td class="na">—</td>'}else{s+=v;h+='<td>'+v.toFixed(2)+'</td>'}});
+    if(vista==='comp')h+='<td>'+(ok?s.toFixed(2):'—')+'</td>';
+    h+='</tr>';
+  }
+  t.innerHTML=h+'</tbody>';
+}
+
+selSiefores(); selClases();
+document.getElementById('pie').textContent =
+  'Cosechado de SISET el '+D.publicado+' · base reconstruida el '+D.actualizado+'.';
+const pl=(n,s,p)=>n+' '+(n===1?s:p);
+document.getElementById('sub').textContent =
+  'Composición mensual por administradora. '+pl(D.clases.length,'clase de activo','clases de activo')+
+  ', '+pl(D.afores.length,'afore','afores')+', '+pl(D.siefores.length,'siefore','siefores')+
+  ', '+pl(D.fechas.length,'corte mensual','cortes mensuales')+'.';
+
+// cifras de la nota, calculadas del dato cargado
+(()=>{
+  const sumas=[]; let peor=null;
+  D.siefores.forEach(s=>D.afores.forEach(a=>{
+    D.fechas.forEach((f,i)=>{
+      let acc=0,ok=true;
+      for(const c of D.clases){const v=D.series[s][a][c]; if(!v||v[i]==null){ok=false;break} acc+=v[i]}
+      if(ok){sumas.push(acc); if(!peor||acc>peor.v)peor={v:acc,a,s,f}}
+    });
+  }));
+  if(!sumas.length)return;
+  sumas.sort((x,y)=>x-y);
+  const med=sumas[Math.floor(sumas.length/2)];
+  document.getElementById('nMed').textContent='mediana de '+med.toFixed(1)+'%';
+  if(peor && peor.v>100){
+    document.getElementById('nMax').textContent=
+      ' (el máximo es '+peor.v.toFixed(1)+'%, '+peor.a+' en '+etqL(peor.f)+')';
+  }
+})();
+render();
+new MutationObserver(()=>render()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>render());
+</script>
