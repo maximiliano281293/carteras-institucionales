@@ -1,0 +1,193 @@
+source,tv_pattern,emisora_pattern,asset_class,subclase,mapped_by,notes
+CNBV,LF,*,Deuda Gubernamental,Bondes F,tipo_valor_explicito,
+CNBV,LG,*,Deuda Gubernamental,Bondes G,tipo_valor_explicito,
+CNBV,LD,*,Deuda Gubernamental,Bondes D,tipo_valor_explicito,
+CNBV,BI,*,Deuda Gubernamental,Cetes,tipo_valor_explicito,
+CNBV,M,*,Deuda Gubernamental,Bonos M,tipo_valor_explicito,
+CNBV,MS,*,Deuda Gubernamental,Bonos M,tipo_valor_explicito,
+CNBV,S,*,Deuda Gubernamental,Udibonos,tipo_valor_explicito,
+CNBV,IQ,*,Deuda Gubernamental,BPAs (IPAB),tipo_valor_explicito,CONSAR cuenta IPAB dentro de gubernamental
+CNBV,IM,*,Deuda Gubernamental,BPAs (IPAB),tipo_valor_explicito,
+CNBV,IS,*,Deuda Gubernamental,BPAs (IPAB),tipo_valor_explicito,
+CNBV,2U,*,Deuda Gubernamental,Segregables UDI,tipo_valor_explicito,CBIC = cupones segregados de Udibonos
+CNBV,MP,*,Deuda Gubernamental,Segregables tasa fija,tipo_valor_explicito,
+CNBV,MC,*,Deuda Gubernamental,Segregables tasa fija,tipo_valor_explicito,
+CNBV,SP,*,Deuda Gubernamental,Segregables UDI,tipo_valor_explicito,
+CNBV,SC,*,Deuda Gubernamental,Segregables UDI,tipo_valor_explicito,
+CNBV,D1SP,*,Deuda Gubernamental,UMS (Gob. Fed. en el exterior),tipo_valor_explicito,Emisor es el Gobierno Federal aunque este en USD. CONSAR lo trata como gubernamental.
+CNBV,92,*,Deuda Gubernamental,CB corto plazo gubernamental,juicio_pendiente,"Emisoras CFE, FONDO, FEFA. CNBV lo etiqueta gubernamental; CONSAR pone paraestatales en deuda privada. REVISAR."
+CNBV,95,*,Deuda Gubernamental,CB entidades del Gob. Federal,juicio_pendiente,"FEFA, FNCOT, CFE, PEMEX. Misma duda que 92: CONSAR clasifica PEMEX/CFE como deuda privada nacional (paraestatales). REVISAR."
+CNBV,91,*,Deuda Privada Nacional,CB corporativos,tipo_valor_explicito,
+CNBV,91SP,*,Deuda Privada Nacional,CB corporativos,tipo_valor_explicito,
+CNBV,93,*,Deuda Privada Nacional,Papel comercial,tipo_valor_explicito,
+CNBV,94,*,Deuda Privada Nacional,CB bancarios,tipo_valor_explicito,
+CNBV,94SP,*,Deuda Privada Nacional,CB bancarios,tipo_valor_explicito,
+CNBV,CD,*,Deuda Privada Nacional,Banca de desarrollo,juicio_pendiente,"BANOB, BACMEXT, NAFR. Incluye KDB (Korea Development Bank) que seria deuda internacional. REVISAR."
+CNBV,CDSP,*,Deuda Privada Nacional,Banca de desarrollo,juicio_pendiente,Sin descripcion en el archivo. Emisora BACMEXT. Por analogia con CD.
+CNBV,I,*,Deuda Privada Nacional,PRLV bancario,tipo_valor_explicito,Emisores banca de desarrollo y comercial
+CNBV,F,*,Deuda Privada Nacional,Certificados de deposito,tipo_valor_explicito,"Bancos mexicanos, denominados en USD (tipo de cambio fix)"
+CNBV,FSP,*,Deuda Privada Nacional,Certificados de deposito,tipo_valor_explicito,
+CNBV,J,*,Deuda Privada Nacional,Bonos bancarios,tipo_valor_explicito,
+CNBV,JSP,*,Deuda Privada Nacional,Bonos bancarios,tipo_valor_explicito,
+CNBV,90,*,Deuda Privada Nacional,Estados y municipios,juicio_pendiente,Subsoberano. CONSAR lo agrupa fuera de gubernamental. REVISAR.
+CNBV,97,*,Deuda Privada Nacional,BORHIS,tipo_valor_explicito,
+CNBV,2,*,Deuda Privada Nacional,Obligaciones,tipo_valor_explicito,
+CNBV,JE,*,Deuda Privada Nacional,Notas estructuradas,juicio_pendiente,"Emisora AMX. Nota estructurada sin garantia de principal: deuda por forma, no 'Estructurados' en el sentido CONSAR (CKD/CERPI). REVISAR."
+CNBV,D8,*,Deuda Internacional,Bonos extranjeros SIC,tipo_valor_explicito,
+CNBV,D8SP,*,Deuda Internacional,Bonos extranjeros SIC,tipo_valor_explicito,
+CNBV,D4SP,*,Deuda Internacional,Treasury bills,tipo_valor_explicito,
+CNBV,D5SP,*,Deuda Internacional,Treasury notes,tipo_valor_explicito,
+CNBV,D2,*,Deuda Internacional,Eurobonos privados,tipo_valor_explicito,"Incluye eurobonos de emisores mexicanos en el exterior (CFE, Bimbo). Se mantiene por TV."
+CNBV,D2SP,*,Deuda Internacional,Eurobonos privados,tipo_valor_explicito,
+CNBV,D7SP,*,Deuda Internacional,Notas estructuradas extranjeras,tipo_valor_explicito,
+CNBV,JI,*,Deuda Internacional,Organismos multilaterales,tipo_valor_explicito,"CABEI, BID Invest"
+CNBV,JISP,*,Deuda Internacional,Organismos multilaterales,tipo_valor_explicito,
+CNBV,56SP,*,Deuda Internacional,Fondos de deuda extranjera,tipo_valor_explicito,Sociedades de inversion de deuda extranjera. Fondo de fondos pero con clase conocida.
+CNBV,1,*,Renta Variable Nacional,Acciones,tipo_valor_explicito,
+CNBV,41,*,Renta Variable Nacional,Acciones bancarias,tipo_valor_explicito,
+CNBV,0,*,Renta Variable Nacional,Acciones aseguradoras y arrendadoras,tipo_valor_explicito,
+CNBV,1S,*,Renta Variable Nacional,SAPIB,tipo_valor_explicito,
+CNBV,00,*,Renta Variable Nacional,Acciones no negociables,tipo_valor_explicito,
+CNBV,1B,*,Renta Variable Nacional,Trackers locales,juicio_pendiente,"Default: NAFTRAC, VMEX, MEXTRAC replican IPC. Excepciones por emisora abajo."
+CNBV,1B,IVVPESO,Renta Variable Internacional,Tracker S&P 500 en pesos,catalogo_etf,
+CNBV,1B,ANGELD,Renta Variable Internacional,Tracker Nasdaq en pesos,catalogo_etf,
+CNBV,1B,DIABLOI,Renta Variable Nacional,Tracker apalancado IPC,catalogo_etf,
+CNBV,1B,FIBRATC,Estructurados y FIBRAS,Tracker de FIBRAs,catalogo_etf,
+CNBV,1ASP,*,Renta Variable Internacional,Acciones SIC,tipo_valor_explicito,
+CNBV,1ESP,*,Renta Variable Internacional,Acciones extranjeras,tipo_valor_explicito,
+CNBV,1E,*,Renta Variable Internacional,Acciones extranjeras,tipo_valor_explicito,
+CNBV,1MSP,*,Renta Variable Internacional,Acciones MILA,tipo_valor_explicito,
+CNBV,YYSP,*,Renta Variable Internacional,ADRs,tipo_valor_explicito,
+CNBV,WSSP,*,Renta Variable Internacional,Warrants,juicio_pendiente,Sin descripcion en el archivo. Emisora GMEWS (warrants de GameStop). 1 mdp.
+CNBV,1ISP,*,Renta Variable Internacional,ETF extranjero (spot),juicio_pendiente,"DEFAULT PROVISIONAL. El TV mezcla ETFs de acciones y de deuda; la clase real la da la emisora. Ver filas por emisora. Lo que no este en el catalogo cae aqui y se registra en calidad_log."
+CNBV,1I,*,Renta Variable Internacional,ETF extranjero (fix),juicio_pendiente,Mismo caso que 1ISP.
+CNBV,CF,*,Estructurados y FIBRAS,FIBRAs,tipo_valor_explicito,
+CNBV,FF,*,Estructurados y FIBRAS,Fibra E / infraestructura,tipo_valor_explicito,
+CNBV,FE,*,Estructurados y FIBRAS,Fibra E / energia,tipo_valor_explicito,
+CNBV,51,*,Fondos de inversión,Fondos de deuda,tipo_valor_explicito,Fondo de fondos. Sin look-through: se declara como clase propia (decision 2026-09-08).
+CNBV,52,*,Fondos de inversión,Fondos de renta variable,tipo_valor_explicito,
+CNBV,CHM,*,Efectivo y equivalentes,Cuenta de cheques MXN,tipo_valor_explicito,
+CNBV,CHD,*,Efectivo y equivalentes,Cuenta de cheques USD,tipo_valor_explicito,
+CNBV,CHE,*,Efectivo y equivalentes,Cuenta de cheques EUR,tipo_valor_explicito,
+CNBV,CHL,*,Efectivo y equivalentes,Cuenta de cheques GBP,tipo_valor_explicito,
+CNBV,CHFS,*,Efectivo y equivalentes,Cuenta de cheques CHF,tipo_valor_explicito,
+CNBV,CHCA,*,Efectivo y equivalentes,Cuenta de cheques CAD,tipo_valor_explicito,
+CNBV,CHDK,*,Efectivo y equivalentes,Cuenta de cheques DKK,tipo_valor_explicito,
+CNBV,AIM,*,Efectivo y equivalentes,Margen en derivados,tipo_valor_explicito,Aportaciones iniciales minimas: efectivo depositado en camara
+CNBV,EAIM,*,Efectivo y equivalentes,Margen en derivados,tipo_valor_explicito,
+CNBV,SWP,*,Derivados,Swaps,tipo_valor_explicito,Fuera de la composicion: valor es P&L / nocional
+CNBV,SWPS,*,Derivados,Swaps,tipo_valor_explicito,
+CNBV,FWD,*,Derivados,Forwards,tipo_valor_explicito,
+CNBV,FWDS,*,Derivados,Forwards,tipo_valor_explicito,
+CNBV,PUT,*,Derivados,Opciones,tipo_valor_explicito,
+CNBV,OCSP,*,Derivados,Opciones,tipo_valor_explicito,
+CNBV,FCSP,*,Derivados,Futuros,tipo_valor_explicito,
+CNBV,FA,*,Derivados,Futuros,tipo_valor_explicito,
+CNBV,FI,*,Derivados,Futuros,tipo_valor_explicito,
+CNBV,FD,*,Derivados,Futuros,tipo_valor_explicito,
+CNBV,1ISP,SHV,Deuda Internacional,ETF Treasuries corto,catalogo_etf,iShares Short Treasury Bond
+CNBV,1ISP,BIL,Deuda Internacional,ETF Treasuries corto,catalogo_etf,SPDR 1-3 Month T-Bill
+CNBV,1ISP,BBIL,Deuda Internacional,ETF Treasuries corto,catalogo_etf,JPMorgan BetaBuilders 3-Month T-Bill
+CNBV,1ISP,SGOV,Deuda Internacional,ETF Treasuries corto,catalogo_etf,iShares 0-3 Month Treasury
+CNBV,1ISP,IB01,Deuda Internacional,ETF Treasuries corto,catalogo_etf,iShares $ Treasury 0-1yr UCITS
+CNBV,1ISP,IBTA,Deuda Internacional,ETF Treasuries corto,catalogo_etf,iShares $ Treasury 1-3yr UCITS
+CNBV,1ISP,MBIL,Deuda Internacional,ETF Treasuries corto,catalogo_etf,iShares 0-3 Month Treasury (MXN)
+CNBV,1ISP,MB3M,Deuda Internacional,ETF Treasuries corto,catalogo_etf,
+CNBV,1ISP,VDST,Deuda Internacional,ETF Treasuries corto,catalogo_etf,Vanguard USD Treasury 0-1yr UCITS
+CNBV,1ISP,FLOA,Deuda Internacional,ETF tasa flotante,catalogo_etf,iShares $ Floating Rate Bond UCITS
+CNBV,1ISP,TFRN,Deuda Internacional,ETF tasa flotante,catalogo_etf,
+CNBV,1ISP,USFR,Deuda Internacional,ETF tasa flotante,catalogo_etf,WisdomTree Floating Rate Treasury
+CNBV,1ISP,AFLT,Deuda Internacional,ETF tasa flotante,catalogo_etf,
+CNBV,1ISP,ERNA,Deuda Internacional,ETF ultracorto,catalogo_etf,iShares $ Ultrashort Bond UCITS
+CNBV,1ISP,VTIP,Deuda Internacional,ETF TIPS,catalogo_etf,
+CNBV,1ISP,TIP,Deuda Internacional,ETF TIPS,catalogo_etf,
+CNBV,1ISP,LQD,Deuda Internacional,ETF corporativo IG,catalogo_etf,
+CNBV,1ISP,LQDA,Deuda Internacional,ETF corporativo IG,catalogo_etf,iShares $ Corp Bond UCITS
+CNBV,1ISP,SDIA,Deuda Internacional,ETF corporativo IG corto,catalogo_etf,iShares $ Short Duration Corp UCITS
+CNBV,1ISP,VCIT,Deuda Internacional,ETF corporativo IG,catalogo_etf,
+CNBV,1ISP,VCSH,Deuda Internacional,ETF corporativo IG corto,catalogo_etf,
+CNBV,1ISP,MBB,Deuda Internacional,ETF MBS,catalogo_etf,
+CNBV,1ISP,BND,Deuda Internacional,ETF agregado,catalogo_etf,
+CNBV,1ISP,BNDW,Deuda Internacional,ETF agregado global,catalogo_etf,
+CNBV,1ISP,BNDX,Deuda Internacional,ETF agregado global,catalogo_etf,
+CNBV,1ISP,AGG,Deuda Internacional,ETF agregado,catalogo_etf,
+CNBV,1ISP,IEF,Deuda Internacional,ETF Treasuries medio,catalogo_etf,
+CNBV,1ISP,IEI,Deuda Internacional,ETF Treasuries medio,catalogo_etf,
+CNBV,1ISP,SHY,Deuda Internacional,ETF Treasuries corto,catalogo_etf,
+CNBV,1ISP,TLT,Deuda Internacional,ETF Treasuries largo,catalogo_etf,
+CNBV,1ISP,GOVT,Deuda Internacional,ETF Treasuries,catalogo_etf,
+CNBV,1ISP,CBU7,Deuda Internacional,ETF Treasuries medio,catalogo_etf,iShares $ Treasury 7-10yr UCITS
+CNBV,1ISP,HYG,Deuda Internacional,ETF high yield,catalogo_etf,
+CNBV,1ISP,JNK,Deuda Internacional,ETF high yield,catalogo_etf,
+CNBV,1ISP,EMB,Deuda Internacional,ETF deuda emergente,catalogo_etf,
+CNBV,1ISP,BSV,Deuda Internacional,ETF agregado corto,catalogo_etf,
+CNBV,1ISP,BIV,Deuda Internacional,ETF agregado medio,catalogo_etf,
+CNBV,1ISP,IB1MXX,Deuda Internacional,ETF Treasuries corto (MXN hedged),catalogo_etf,iShares $ Treasury 0-1yr MXN hedged
+CNBV,1ISP,IBTMXX,Deuda Internacional,ETF Treasuries corto (MXN hedged),catalogo_etf,iShares $ Treasury 1-3yr MXN hedged
+CNBV,1ISP,IDTXX,Deuda Internacional,ETF Treasuries medio (MXN hedged),catalogo_etf,iShares $ Treasury 7-10yr MXN hedged
+CNBV,1ISP,EMBMXX,Deuda Internacional,ETF deuda emergente (MXN hedged),catalogo_etf,
+CNBV,1ISP,LQDMX,Deuda Internacional,ETF corporativo IG (MXN hedged),catalogo_etf,
+CNBV,1ISP,IHYMXX,Deuda Internacional,ETF high yield (MXN hedged),catalogo_etf,
+CNBV,1ISP,IVV,Renta Variable Internacional,ETF S&P 500,catalogo_etf,
+CNBV,1ISP,VOO,Renta Variable Internacional,ETF S&P 500,catalogo_etf,
+CNBV,1ISP,SPY,Renta Variable Internacional,ETF S&P 500,catalogo_etf,
+CNBV,1ISP,SPYM,Renta Variable Internacional,ETF S&P 500,catalogo_etf,
+CNBV,1ISP,SPYL,Renta Variable Internacional,ETF S&P 500,catalogo_etf,SPDR S&P 500 UCITS
+CNBV,1ISP,CSPX,Renta Variable Internacional,ETF S&P 500,catalogo_etf,iShares Core S&P 500 UCITS
+CNBV,1ISP,CSPXX,Renta Variable Internacional,ETF S&P 500 (MXN hedged),catalogo_etf,
+CNBV,1ISP,VUAA,Renta Variable Internacional,ETF S&P 500,catalogo_etf,Vanguard S&P 500 UCITS
+CNBV,1ISP,500U,Renta Variable Internacional,ETF S&P 500,catalogo_etf,
+CNBV,1ISP,ITOT,Renta Variable Internacional,ETF US total market,catalogo_etf,
+CNBV,1ISP,VTI,Renta Variable Internacional,ETF US total market,catalogo_etf,
+CNBV,1ISP,BBUS,Renta Variable Internacional,ETF US large cap,catalogo_etf,
+CNBV,1ISP,VT,Renta Variable Internacional,ETF global,catalogo_etf,
+CNBV,1ISP,ACWI,Renta Variable Internacional,ETF global,catalogo_etf,
+CNBV,1ISP,IEFA,Renta Variable Internacional,ETF desarrollados ex-US,catalogo_etf,
+CNBV,1ISP,IEMG,Renta Variable Internacional,ETF emergentes,catalogo_etf,
+CNBV,1ISP,EIMI,Renta Variable Internacional,ETF emergentes,catalogo_etf,iShares Core MSCI EM IMI UCITS
+CNBV,1ISP,CEMA,Renta Variable Internacional,ETF emergentes,catalogo_etf,
+CNBV,1ISP,QQQM,Renta Variable Internacional,ETF Nasdaq 100,catalogo_etf,
+CNBV,1ISP,QQQ,Renta Variable Internacional,ETF Nasdaq 100,catalogo_etf,
+CNBV,1ISP,IUIT,Renta Variable Internacional,ETF sector tecnologia,catalogo_etf,
+CNBV,1ISP,XLK,Renta Variable Internacional,ETF sector tecnologia,catalogo_etf,
+CNBV,1ISP,QUAL,Renta Variable Internacional,ETF factor calidad,catalogo_etf,
+CNBV,1ISP,IUQA,Renta Variable Internacional,ETF factor calidad,catalogo_etf,
+CNBV,1ISP,EWJ,Renta Variable Internacional,ETF Japon,catalogo_etf,
+CNBV,1ISP,GLD,Mercancias,ETF oro,catalogo_etf,
+CNBV,1ISP,IAU,Mercancias,ETF oro,catalogo_etf,
+CNBV,1ISP,SGLN,Mercancias,ETF oro,catalogo_etf,
+CNBV,1ISP,IGLN,Mercancias,ETF oro,catalogo_etf,
+CNBV,1ISP,SLV,Mercancias,ETF plata,catalogo_etf,
+CNBV,1ISP,PDBC,Mercancias,ETF materias primas,catalogo_etf,
+CNBV,1ISP,DBC,Mercancias,ETF materias primas,catalogo_etf,
+CNBV,1I,IB1MXX,Deuda Internacional,ETF Treasuries corto (MXN hedged),catalogo_etf,
+CNBV,1I,IBTMXX,Deuda Internacional,ETF Treasuries corto (MXN hedged),catalogo_etf,
+CNBV,1I,IDTXX,Deuda Internacional,ETF Treasuries medio (MXN hedged),catalogo_etf,
+CNBV,1I,MBIL,Deuda Internacional,ETF Treasuries corto,catalogo_etf,
+CNBV,1I,MB3M,Deuda Internacional,ETF Treasuries corto,catalogo_etf,
+CNBV,1I,EMBMXX,Deuda Internacional,ETF deuda emergente (MXN hedged),catalogo_etf,
+CNBV,1I,LQDMX,Deuda Internacional,ETF corporativo IG (MXN hedged),catalogo_etf,
+CNBV,1I,IHYMXX,Deuda Internacional,ETF high yield (MXN hedged),catalogo_etf,
+CNBV,1I,CSPXX,Renta Variable Internacional,ETF S&P 500 (MXN hedged),catalogo_etf,
+CNBV,1ISP,IVE,Renta Variable Internacional,ETF S&P 500 value,catalogo_etf,
+CNBV,1ISP,IVW,Renta Variable Internacional,ETF S&P 500 growth,catalogo_etf,
+CNBV,1ISP,EFV,Renta Variable Internacional,ETF desarrollados value,catalogo_etf,
+CNBV,1ISP,VGT,Renta Variable Internacional,ETF sector tecnologia,catalogo_etf,
+CNBV,1ISP,EZU,Renta Variable Internacional,ETF eurozona,catalogo_etf,
+CNBV,1ISP,VGK,Renta Variable Internacional,ETF Europa,catalogo_etf,
+CNBV,1ISP,MTUM,Renta Variable Internacional,ETF factor momentum,catalogo_etf,
+CNBV,1ISP,VIG,Renta Variable Internacional,ETF dividendos,catalogo_etf,
+CNBV,1ISP,VWO,Renta Variable Internacional,ETF emergentes,catalogo_etf,
+CNBV,1ISP,EEM,Renta Variable Internacional,ETF emergentes,catalogo_etf,
+CNBV,1ISP,VEA,Renta Variable Internacional,ETF desarrollados ex-US,catalogo_etf,
+CNBV,1ISP,CNDX,Renta Variable Internacional,ETF Nasdaq 100,catalogo_etf,iShares Nasdaq 100 UCITS
+CNBV,1ISP,KBWB,Renta Variable Internacional,ETF bancos US,catalogo_etf,
+CNBV,1ISP,IUVL,Renta Variable Internacional,ETF factor value,catalogo_etf,iShares Edge MSCI USA Value UCITS
+CNBV,1ISP,CJPU,Renta Variable Internacional,ETF Japon (USD hedged),catalogo_etf,
+CNBV,1ISP,SPTS,Deuda Internacional,ETF Treasuries corto,catalogo_etf,SPDR Portfolio Short Term Treasury
+CNBV,1ISP,CBU0,Deuda Internacional,ETF Treasuries corto,catalogo_etf,iShares $ Treasury 0-1yr UCITS (USD)
+CNBV,1ISP,JU13,Deuda Internacional,ETF Treasuries corto,catalogo_etf,JPM BetaBuilders US Treasury 1-3yr UCITS
+CNBV,1ISP,JU3M,Deuda Internacional,ETF Treasuries corto,catalogo_etf,JPM BetaBuilders US Treasury 0-3M UCITS
+CNBV,1ISP,VAGU,Deuda Internacional,ETF agregado global,catalogo_etf,Vanguard Global Aggregate Bond UCITS
+CNBV,1ISP,CORP,Deuda Internacional,ETF corporativo IG,catalogo_etf,iShares Global Corp Bond UCITS
+CNBV,1ISP,IHYA,Deuda Internacional,ETF high yield,catalogo_etf,iShares $ High Yield Corp UCITS

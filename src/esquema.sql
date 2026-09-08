@@ -91,16 +91,20 @@ CREATE TABLE IF NOT EXISTS instruments (
     ultima_vez      DATE
 );
 
+-- El mapeo vive en catalogos/asset_class_map_<source>.csv (versionado en git) y se
+-- carga aqui en cada corrida. '*' en emisora_pattern = regla por tipo de valor;
+-- una emisora explicita gana sobre el '*' de su TV (necesario para los ETFs, donde
+-- el TV mezcla acciones y deuda).
 CREATE TABLE IF NOT EXISTS asset_class_map (
     source          VARCHAR NOT NULL,
     tv_pattern      VARCHAR NOT NULL,
-    emisora_pattern VARCHAR,
+    emisora_pattern VARCHAR NOT NULL DEFAULT '*',
     asset_class     VARCHAR NOT NULL,
     subclase        VARCHAR,
-    mapped_by       VARCHAR NOT NULL,   -- 'tipo_valor_explicito' | 'anexo8_cufi' | 'juicio_pendiente'
+    mapped_by       VARCHAR NOT NULL,   -- 'tipo_valor_explicito' | 'catalogo_etf' | 'anexo8_cufi' | 'juicio_pendiente'
     notes           VARCHAR,
     valid_from      DATE NOT NULL DEFAULT DATE '1900-01-01',
-    PRIMARY KEY (source, tv_pattern, valid_from)
+    PRIMARY KEY (source, tv_pattern, emisora_pattern, valid_from)
 );
 
 -- Grano: (source, entity_id, as_of_date, instrument_id). Para CNBV R7 y SEC 13F.

@@ -3,8 +3,8 @@
 Dataset longitudinal de composición de carteras de inversionistas institucionales
 de México y Estados Unidos, y la plataforma que se construye sobre él.
 
-Ahora mismo cubre **CONSAR / Siefores Generacionales**. CNBV R7 y SEC 13F entran
-después, sobre el mismo esquema.
+Cubre **CONSAR / Siefores Generacionales** (afores) y **CNBV R03 J-0311 "R7"**
+(fondos de inversión). SEC 13F entra después, sobre el mismo esquema.
 
 ## El botón
 
@@ -22,8 +22,13 @@ otra — que importa porque las fuentes revisan cifras hacia atrás.
 
 ```bash
 pip install -r requirements.txt
+# Afores (CONSAR)
 python src/cosechar_consar.py     # -> crudos/consar_AAAAMMDD.json   (~15 min)
 python src/cargar.py              # -> datos/carteras.duckdb + allocations.parquet + pagina.json
+# Fondos de inversión (CNBV) — un .xlsm por año, bajado del portal a crudos/
+python src/extraer_r7.py crudos/052_1G_R7_2026.xlsm   # -> crudos/r7_2026_<sha>.parquet (14 s)
+python src/cargar_r7.py --publicado 2026-08-17        # -> holdings_cnbv.parquet + allocations_cnbv.parquet + pagina_fondos.json
+# Página (las dos secciones)
 python src/construir_pagina.py    # -> docs/index.html
 ```
 
@@ -36,8 +41,12 @@ la siguiente corrida retoma donde iba.
 src/esquema.sql           esquema DuckDB: append-only, snapshots versionados,
                           dimensiones, ingest_log y log de calidad
 src/cosechar_consar.py    baja las series de SISET por el endpoint directo
-src/cargar.py             parsea, carga, valida y exporta
-src/construir_pagina.py   inyecta los datos en la plantilla
+src/cargar.py             parsea, carga, valida y exporta (CONSAR)
+src/extraer_r7.py         saca el universo completo del .xlsm de CNBV sin abrir Excel
+src/cargar_r7.py          holdings -> allocations por clase, con el catálogo y el denominador
+src/construir_pagina.py   inyecta los datos de ambas fuentes en la plantilla
+catalogos/asset_class_map_cnbv.csv   tipo de valor (+ emisora para ETFs) -> clase de activo
+catalogos/pendientes_etf_revision.csv ETFs que aún caen en la clase por default
 web/plantilla.html        la página (HTML autocontenido, sin dependencias)
 crudos/                   snapshots crudos con fecha. Nunca se sobrescriben.
 datos/                    DuckDB, Parquet y el JSON de la página
@@ -99,6 +108,28 @@ instrumento; a nivel de clase de activo, que es lo que se grafica, no.
 2024 y la 55-59 deja de operar ese mismo día.
 
 CONSAR marca sus cifras como preliminares.
+
+## Lo que hay que saber del R7 de CNBV
+
+**El `.xlsm` ya trae todo el año; no hay que abrir Excel.** La hoja MINFO es una tabla
+dinámica y lo que se ve es sólo el filtro guardado. La caché de esa tabla dinámica trae
+los 105 mil registros del año (29 operadoras, 650 fondos). "Refrescar" leería una ruta
+de red interna de CNBV (`\\sector5\...`): desde fuera nunca funcionó. `extraer_r7.py`
+lee la caché directo del ZIP.
+
+**Denominador:** Directo + Reporto + Garantías + Préstamo de valores; derivados fuera
+(su valor es P&L firmado). Declarado en `parametros.cnbv.denominador`. **No comparable
+con CONSAR**, que usa activos netos.
+
+**Los ETFs del SIC (TV `1ISP`, `1I`) no se pueden clasificar por tipo de valor:** el
+mismo TV mezcla S&P 500 con Treasuries a 0-3 meses. Se clasifican por emisora en el
+catálogo; lo que no está en el catálogo cae provisionalmente en Renta Variable
+Internacional y queda en `calidad_log` (`clase_por_default`). La lista para revisar
+está en `catalogos/pendientes_etf_revision.csv`.
+
+**Cinco tipos de inversión, no cuatro:** existe "Operación de préstamo de valores
+actuando como prestamista" (0.03% del sistema). **Sí hay efectivo en pesos** (`CHM`).
+**Fondos de fondos** (TV `51`, `52`) se muestran como clase propia, sin look-through.
 
 ## Pendiente de verificar
 

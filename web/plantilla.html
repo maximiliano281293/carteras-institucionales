@@ -1,4 +1,4 @@
-<title>Carteras de las Siefores</title>
+<title>Carteras institucionales</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 :root{
@@ -8,7 +8,7 @@
   --rule:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
   --accent:#2a78d6; --warn:#ec835a;
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
-  --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
+  --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948; --s9:#8a6a3d; --s10:#6f7480;
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
 }
@@ -19,7 +19,7 @@
   --rule:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
   --accent:#3987e5; --warn:#ec835a;
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
-  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; --s9:#b08a5a; --s10:#9a9fab;
 }}
 :root[data-theme="dark"]{
   color-scheme:dark;
@@ -28,7 +28,7 @@
   --rule:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
   --accent:#3987e5; --warn:#ec835a;
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
-  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; --s9:#b08a5a; --s10:#9a9fab;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -128,16 +128,32 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
   display:flex;flex-direction:column;gap:5px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:640px){.wrap{padding:24px 14px 48px}h1{font-size:22px}}
+/* secciones y selector de entidad largo */
+.secciones{display:flex;gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;width:max-content;max-width:100%}
+.secciones button{font-family:var(--sans);font-size:13px;padding:8px 16px;border:0;background:var(--surface);color:var(--ink2);cursor:pointer}
+.secciones button+button{border-left:1px solid var(--rule)}
+.secciones button[aria-pressed="true"]{background:var(--ink);color:var(--ground);font-weight:500}
+.secciones button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.note.info{border-left-color:var(--accent)}
+.busca{display:flex;gap:6px;align-items:center}
+.busca input{font-family:var(--mono);font-size:12.5px;padding:6px 9px;border:1px solid var(--rule);border-radius:2px;
+  background:var(--surface);color:var(--ink);width:150px}
+.badge{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;
+  border:1px solid var(--rule);border-radius:2px;color:var(--muted);vertical-align:middle;margin-left:6px}
 </style>
 
 <div class="wrap">
 <header>
-  <div class="eyebrow">CONSAR · SISET · Siefores Generacionales</div>
-  <h1 id="h1">Carteras de las Siefores</h1>
+  <div class="eyebrow" id="eyebrow">CONSAR · SISET · Siefores Generacionales</div>
+  <h1 id="h1">Carteras institucionales</h1>
   <p class="sub" id="sub"></p>
+  <div class="secciones" role="tablist" aria-label="Fuente" id="secciones">
+    <button role="tab" data-m="consar" aria-pressed="true">Afores · CONSAR</button>
+    <button role="tab" data-m="cnbv" aria-pressed="false">Fondos de inversión · CNBV</button>
+  </div>
 </header>
 
-<div class="note">
+<div class="note" id="notaConsar">
   <h2>Antes de leer las gráficas: las ocho clases no suman 100%</h2>
   <p>CONSAR reporta cada clase como <b>porcentaje a valor de mercado sobre los activos netos</b>, no como
   partes de una torta. Sumadas, las ocho dan una <b id="nMed"></b> — y hay meses que <b>pasan de 100%</b>
@@ -147,20 +163,35 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
   traslape entre categorías. No se normalizó nada para forzar el cierre.</p>
 </div>
 
+<div class="note info" id="notaCnbv" hidden>
+  <h2>El denominador de los fondos no es el de las Afores</h2>
+  <p>Aquí cada clase es <b>% de la cartera de inversión reportada a CNBV</b> (R03 J-0311): Directo + Reporto +
+  Garantías + Préstamo de valores, <b>excluyendo la valuación de derivados</b>. Por construcción suma 100%.
+  CONSAR usa el activo neto. Un 60% de gubernamental aquí y un 60% en una siefore <b>no son la misma cosa</b>.</p>
+  <p>Las clases salen de un catálogo tipo de valor → clase (<span id="nReglas"></span> reglas). Los ETFs listados en el SIC
+  se clasifican por emisora; los que aún no están en el catálogo caen provisionalmente en Renta Variable Internacional
+  y quedan registrados en el log de calidad. Los fondos que invierten en otros fondos se muestran como clase propia,
+  sin transparentar.</p>
+</div>
+
 <div class="controls">
-  <div class="field" id="sieforeWrap">
-    <label for="siefore">Siefore</label>
-    <select id="siefore"></select>
+  <div class="field" id="grupoWrap">
+    <label for="grupo" id="lb-gr">Siefore</label>
+    <select id="grupo"></select>
   </div>
-  <div class="field">
-    <label id="lb-af">Administradora</label>
-    <div class="chips" id="afores" role="group" aria-labelledby="lb-af"></div>
+  <div class="field" id="entWrap">
+    <label id="lb-en">Administradora</label>
+    <div class="chips" id="entChips" role="group" aria-labelledby="lb-en"></div>
+    <div class="busca" id="entBusca" hidden>
+      <select id="entSel"></select>
+      <input id="entFiltro" type="search" placeholder="buscar fondo…" aria-label="Buscar fondo">
+    </div>
   </div>
   <div class="field">
     <label id="lb-vi">Vista</label>
     <div class="chips" id="vistas" role="group" aria-labelledby="lb-vi">
       <button class="chip" data-v="comp" aria-pressed="true">Composición</button>
-      <button class="chip" data-v="comp2" aria-pressed="false">Comparar afores</button>
+      <button class="chip" data-v="comp2" aria-pressed="false">Comparar</button>
       <button class="chip" data-v="pan" aria-pressed="false">Panorama</button>
     </div>
   </div>
@@ -173,7 +204,7 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
 <div class="panel">
   <div class="panel-head">
     <h2 id="chartTitle">Composición</h2>
-    <span class="hint" id="chartHint">Pasa el cursor sobre la gráfica para ver el detalle de cada mes</span>
+    <span class="hint" id="chartHint"></span>
   </div>
   <div class="chartbox" id="box">
     <svg id="svg" viewBox="0 0 980 420" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="chartTitle"></svg>
@@ -188,73 +219,157 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
   <div class="tblscroll"><table id="table"></table></div>
 </details>
 
-<footer>
-  <div>Fuente: CONSAR, Sistema de Información Estadística (SISET) — Inversiones de las Siefores Generacionales. Publicación del 14 de agosto de 2026, cifras al cierre de julio de 2026.</div>
+<footer id="pieConsar">
+  <div>Fuente: CONSAR, Sistema de Información Estadística (SISET) — Inversiones de las Siefores Generacionales. Cifras al cierre de <span id="corteConsar"></span>.</div>
   <div>CONSAR marca sus cifras como preliminares. A partir de abril de 2025 cambió el desglose por instrumento (BONDES G, FONADIN, BPAS, "Otros Gubernamental"); a nivel de clase de activo, que es lo que se grafica aquí, ese cambio no afecta la serie.</div>
   <div>Los valores ausentes se muestran como huecos. No se imputó ningún dato.</div>
   <div id="pie"></div>
 </footer>
+<footer id="pieCnbv" hidden>
+  <div>Fuente: CNBV, Portafolio de Información — R03 J-0311 Cartera de inversión, fondos de inversión (archivo "R7"). Cifras al cierre de <span id="corteCnbv"></span>.</div>
+  <div>CNBV advierte que la información está sujeta a revisión por reenvíos de las entidades. Los pesos se calculan a partir de las posiciones reportadas; los derivados se guardan pero no entran en la composición.</div>
+  <div>Los meses en que un fondo no reporta se muestran como huecos. No se imputó ningún dato.</div>
+  <div id="pie2"></div>
+</footer>
 </div>
 
 <script>
-const D = __DATOS__;
+const D  = __DATOS__;
+const DF = __DATOS_FONDOS__;
 const NOMCLASE={'Mercancias':'Mercancías'};
 const nc=c=>NOMCLASE[c]||c;
-const SER=['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'];
+const SER=['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8','--s9','--s10'];
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const etq=s=>{const d=new Date(s+'T00:00:00');return MES[d.getMonth()]+" "+String(d.getFullYear()).slice(2)};
 const etqL=s=>{const d=new Date(s+'T00:00:00');return MES[d.getMonth()]+" "+d.getFullYear()};
+const CORTA={'Deuda Gubernamental':'Deuda gub.','Deuda Privada Nacional':'Deuda priv.',
+  'Deuda Internacional':'Deuda int.','Renta Variable Nacional':'RV nacional',
+  'Renta Variable Internacional':'RV internacional','Estructurados y FIBRAS':'Estruct. y FIBRAS',
+  'Mercancias':'Mercancías','Otros Activos':'Otros','Fondos de inversión':'Fondos','Efectivo y equivalentes':'Efectivo'};
 
-let siefore=D.siefores.includes('Siefore 80-84')?'Siefore 80-84':D.siefores[0];
-let afore=D.afores.includes('Profuturo')?'Profuturo':D.afores[0];
-let vista='comp';
-let clase=D.clases[0];
+// ---------- Dos fuentes, una sola maquinaria ----------
+// Un "modo" define: grupos (siefores | operadoras), entidades dentro del grupo
+// (afores | fondos), fechas, clases y como leer una serie.
+const fondosPorOp={}; DF.operadoras.forEach(o=>fondosPorOp[o]=[]);
+Object.entries(DF.fondos).forEach(([f,x])=>fondosPorOp[x.operadora].push(f));
+Object.values(fondosPorOp).forEach(a=>a.sort());
 
-// primer indice con dato
-let i0=0;
-outer: for(let i=0;i<D.fechas.length;i++){
-  for(const s of D.siefores) for(const a of D.afores) for(const c of D.clases){
-    const v=D.series[s][a][c]; if(v&&v[i]!=null){i0=i;break outer}
+const MODOS={
+  consar:{
+    eyebrow:'CONSAR · SISET · Siefores Generacionales', h1:'Carteras de las Siefores',
+    lblGrupo:'Siefore', lblEnt:'Administradora', nombreEnt:'afore', nombreEnts:'afores', nombreGrupo:'siefore', nombreGrupos:'siefores',
+    fechas:D.fechas, clases:D.clases, grupos:D.siefores,
+    entidades:g=>D.afores,
+    serie:(g,e,c)=>(D.series[g]&&D.series[g][e]&&D.series[g][e][c])||null,
+    refLinea:true, chips:true,
+    grupoIni:D.siefores.includes('Siefore 80-84')?'Siefore 80-84':D.siefores[0],
+    entIni:D.afores.includes('Profuturo')?'Profuturo':D.afores[0],
+    tituloPan:(e)=>'Panorama · '+e+' · último mes de cada siefore',
+    panItems:(g,e)=>D.siefores.map(s=>({titulo:s.replace('Siefore ','SB ').replace('SB Pensiones','Pensiones').replace('SB Inicial','Inicial'),full:s,g:s,e:e})),
+    sumaLabel:'del activo neto',
+  },
+  cnbv:{
+    eyebrow:'CNBV · Portafolio de Información · R03 J-0311 (fondos de inversión)', h1:'Carteras de los fondos de inversión',
+    lblGrupo:'Operadora', lblEnt:'Fondo', nombreEnt:'fondo', nombreEnts:'fondos', nombreGrupo:'operadora', nombreGrupos:'operadoras',
+    fechas:DF.fechas, clases:DF.clases, grupos:DF.operadoras,
+    entidades:g=>fondosPorOp[g]||[],
+    serie:(g,e,c)=>(DF.fondos[e]&&DF.fondos[e].series[c])||null,
+    refLinea:false, chips:false,
+    grupoIni:DF.operadoras.includes('OPMONEX')?'OPMONEX':DF.operadoras[0],
+    entIni:null,
+    tituloPan:(e,g)=>'Panorama · '+g+' · último mes de cada fondo',
+    panItems:(g,e)=>(fondosPorOp[g]||[]).map(f=>({titulo:f,full:f+' · '+(DF.fondos[f].tipo||''),g:g,e:f})),
+    sumaLabel:'de la cartera',
   }
+};
+let modo='consar', M0=MODOS[modo];
+let grupo=M0.grupoIni, ent=M0.entIni, vista='comp', clase=M0.clases[0];
+let F=[], i0=0;
+
+function prepararFechas(){
+  // primer indice con dato en toda la fuente (recorta el vacio inicial)
+  const fe=M0.fechas; i0=0;
+  outer: for(let i=0;i<fe.length;i++){
+    for(const g of M0.grupos) for(const e of M0.entidades(g)) for(const c of M0.clases){
+      const v=M0.serie(g,e,c); if(v&&v[i]!=null){i0=i;break outer}
+    }
+  }
+  F=fe.slice(i0);
 }
-const F=D.fechas.slice(i0);
-const val=(a,c)=>(D.series[siefore][a][c]||[]).slice(i0);
+const val=(e,c)=>{const v=M0.serie(grupo,e,c); return v?v.slice(i0):new Array(F.length).fill(null)};
 
 const M={l:44,r:14,t:16,b:34}, W=980, H=420, PW=W-M.l-M.r, PH=H-M.t-M.b;
 const X=i=>M.l+(F.length<2?PW/2:i*PW/(F.length-1));
 const svg=document.getElementById('svg'), tip=document.getElementById('tip'), box=document.getElementById('box');
 const el=(t,a)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',t);for(const k in a)e.setAttribute(k,a[k]);return e};
 
-function chipsAfores(){
-  const c=document.getElementById('afores');c.innerHTML='';
-  D.afores.forEach(a=>{
-    const b=document.createElement('button');b.className='chip';b.textContent=a;
-    b.setAttribute('aria-pressed',a===afore);b.onclick=()=>{afore=a;render()};c.appendChild(b);
-  });
+// ---------- controles ----------
+function selGrupos(){
+  const s=document.getElementById('grupo'); s.innerHTML='';
+  M0.grupos.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;s.appendChild(o)});
+  s.value=grupo; document.getElementById('lb-gr').textContent=M0.lblGrupo;
+  s.onchange=e=>{grupo=e.target.value; const es=M0.entidades(grupo); if(!es.includes(ent))ent=es[0]; render()};
 }
-function selSiefores(){
-  const s=document.getElementById('siefore'); s.innerHTML='';
-  D.siefores.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;s.appendChild(o)});
-  s.value=siefore; s.onchange=e=>{siefore=e.target.value;render()};
+function selEntidades(){
+  document.getElementById('lb-en').textContent=M0.lblEnt;
+  const es=M0.entidades(grupo); if(!es.includes(ent))ent=es[0];
+  const chips=document.getElementById('entChips'), busca=document.getElementById('entBusca');
+  chips.hidden=!M0.chips; busca.hidden=M0.chips;
+  if(M0.chips){
+    chips.innerHTML='';
+    es.forEach(a=>{const b=document.createElement('button');b.className='chip';b.textContent=a;
+      b.setAttribute('aria-pressed',a===ent);b.onclick=()=>{ent=a;render()};chips.appendChild(b)});
+  } else {
+    const s=document.getElementById('entSel'), q=document.getElementById('entFiltro');
+    const f=q.value.trim().toUpperCase();
+    s.innerHTML='';
+    es.filter(x=>!f||x.toUpperCase().includes(f)).forEach(x=>{const o=document.createElement('option');o.value=x;
+      o.textContent=x+(DF.fondos[x].tipo?'  ·  '+DF.fondos[x].tipo:'');s.appendChild(o)});
+    if([...s.options].some(o=>o.value===ent))s.value=ent; else if(s.options.length){ent=s.options[0].value}
+    s.onchange=e=>{ent=e.target.value;render()};
+    q.oninput=()=>{selEntidades(); if(vista!=='pan')render()};
+  }
 }
 function selClases(){
   const s=document.getElementById('clase');s.innerHTML='';
-  D.clases.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=nc(c);s.appendChild(o)});
+  M0.clases.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=nc(c);s.appendChild(o)});
+  if(!M0.clases.includes(clase))clase=M0.clases[0];
   s.value=clase; s.onchange=e=>{clase=e.target.value;render()};
 }
 document.getElementById('vistas').onclick=e=>{
   const b=e.target.closest('[data-v]'); if(!b)return;
   vista=b.dataset.v;
   document.querySelectorAll('#vistas .chip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===vista));
-  document.getElementById('claseWrap').hidden = vista!=='comp2';
-  document.getElementById('sieforeWrap').hidden = vista==='pan';
   render();
 };
+document.getElementById('secciones').onclick=e=>{
+  const b=e.target.closest('[data-m]'); if(!b||b.dataset.m===modo)return;
+  cambiarModo(b.dataset.m);
+};
+function cambiarModo(m){
+  modo=m; M0=MODOS[m];
+  document.querySelectorAll('#secciones button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.m===modo));
+  grupo=M0.grupoIni; ent=M0.entIni||M0.entidades(grupo)[0]; clase=M0.clases[0];
+  document.getElementById('entFiltro').value='';
+  document.getElementById('eyebrow').textContent=M0.eyebrow;
+  document.getElementById('h1').textContent=M0.h1;
+  document.getElementById('notaConsar').hidden = modo!=='consar';
+  document.getElementById('notaCnbv').hidden   = modo!=='cnbv';
+  document.getElementById('pieConsar').hidden  = modo!=='consar';
+  document.getElementById('pieCnbv').hidden    = modo!=='cnbv';
+  prepararFechas(); selGrupos(); selClases();
+  const pl=(n,s,p)=>n+' '+(n===1?s:p);
+  document.getElementById('sub').textContent =
+    'Composición mensual por '+M0.nombreEnt+'. '+pl(M0.clases.length,'clase de activo','clases de activo')+
+    ', '+pl(new Set(M0.grupos.flatMap(g=>M0.entidades(g))).size,M0.nombreEnt,M0.nombreEnts)+
+    ', '+pl(M0.grupos.length,M0.nombreGrupo,M0.nombreGrupos)+', '+pl(F.length,'corte mensual','cortes mensuales')+'.';
+  render();
+}
 
-let YMAX=115;
+// ---------- ejes ----------
 function ejes(ymax){
-  const g=el('g',{}); YMAX=ymax;
+  const g=el('g',{});
   const Y=v=>M.t+PH-(v/ymax)*PH;
   const step = ymax>60?20:(ymax>20?5:(ymax>6?2:1));
   for(let v=0;v<=ymax;v+=step){
@@ -265,9 +380,10 @@ function ejes(ymax){
   let prev=null;
   F.forEach((f,i)=>{
     const y=f.slice(0,4);
-    if(prev!==null && y!==prev){
-      const t=el('text',{class:'tick',x:X(i),y:H-10,'text-anchor':'middle'});
-      t.textContent=y; g.appendChild(t);
+    if(F.length<=14){ // pocos meses: etiqueta cada uno
+      const t=el('text',{class:'tick',x:X(i),y:H-10,'text-anchor':'middle'}); t.textContent=etq(f); g.appendChild(t);
+    } else if(prev!==null && y!==prev){
+      const t=el('text',{class:'tick',x:X(i),y:H-10,'text-anchor':'middle'}); t.textContent=y; g.appendChild(t);
       g.appendChild(el('line',{class:'grid',x1:X(i),x2:X(i),y1:M.t,y2:M.t+PH,stroke:cssv('--rule')}));
     }
     prev=y;
@@ -275,38 +391,103 @@ function ejes(ymax){
   return {g,Y};
 }
 
+// ---------- render ----------
 function render(){
-  chipsAfores(); svg.innerHTML=''; tip.style.opacity=0;
+  selEntidades(); svg.innerHTML=''; tip.style.opacity=0;
   const pan=vista==='pan';
   box.hidden=pan; document.getElementById('pan').hidden=!pan;
-  document.getElementById('chartTitle').textContent =
-    pan ? 'Panorama · '+afore+' · último mes de cada siefore' :
-    vista==='comp' ? 'Composición · '+afore+' · '+siefore : nc(clase)+' · '+afore+' frente a las demás · '+siefore;
-  document.getElementById('chartHint').textContent =
-    pan ? 'Un treemap por siefore · el área de cada rectángulo es el % sobre activos netos' :
-    vista==='comp' ? 'Área apilada sobre activos netos · la línea punteada marca el 100%'
-                   : 'La afore seleccionada, resaltada contra las otras nueve · % sobre activos netos';
-  pan ? drawPanorama() : vista==='comp' ? drawStack() : drawLines();
+  document.getElementById('claseWrap').hidden = vista!=='comp2';
+  document.getElementById('grupoWrap').hidden = pan && modo==='consar';
+  document.getElementById('entWrap').hidden   = pan && modo==='cnbv';
+  const T=document.getElementById('chartTitle'), Hn=document.getElementById('chartHint');
+  if(pan){
+    T.textContent=M0.tituloPan(ent,grupo);
+    Hn.textContent='Un treemap por '+(modo==='consar'?'siefore':'fondo')+' · el área de cada rectángulo es su % '+M0.sumaLabel;
+    drawPanorama();
+  } else if(vista==='comp'){
+    T.textContent='Composición · '+ent+' · '+grupo;
+    Hn.textContent= modo==='consar' ? 'Área apilada sobre activos netos · la línea punteada marca el 100%'
+                                    : 'Área apilada · % de la cartera reportada, sin derivados';
+    drawStack();
+  } else {
+    T.textContent=nc(clase)+' · '+ent+' frente a '+(modo==='consar'?'las demás afores':'los demás fondos de '+grupo);
+    Hn.textContent='La entidad seleccionada, resaltada contra el resto de su grupo';
+    drawLines();
+  }
   buildTable();
 }
 
-// ---------- Panorama: un treemap por siefore, ultimo mes con dato ----------
-const CORTA={'Deuda Gubernamental':'Deuda gub.','Deuda Privada Nacional':'Deuda priv.',
-  'Deuda Internacional':'Deuda int.','Renta Variable Nacional':'RV nacional',
-  'Renta Variable Internacional':'RV internacional','Estructurados y FIBRAS':'Estruct. y FIBRAS',
-  'Mercancias':'Mercancías','Otros Activos':'Otros'};
+function drawStack(){
+  const K=M0.clases.length, cols=M0.clases.map(c=>val(ent,c));
+  const tops=[], sums=[];
+  for(let i=0;i<F.length;i++){
+    let acc=0,ok=true; const col=[];
+    for(let k=0;k<K;k++){const v=cols[k][i]; if(v==null){ok=false;break} acc+=v; col.push(acc)}
+    tops.push(ok?col:null); sums.push(ok?acc:null);
+  }
+  const mx=Math.max(M0.refLinea?105:100,...sums.filter(v=>v!=null));
+  const ymax=Math.ceil(mx/5)*5;
+  const {g,Y}=ejes(ymax); svg.appendChild(g);
+  for(let k=K-1;k>=0;k--){
+    let d='',open=false;
+    for(let i=0;i<F.length;i++){
+      if(tops[i]==null){open=false;continue}
+      d += (open?'L':'M')+X(i)+' '+Y(tops[i][k])+' '; open=true;
+    }
+    let back='';
+    for(let i=F.length-1;i>=0;i--){ if(tops[i]==null)continue; back += 'L'+X(i)+' '+Y(k===0?0:tops[i][k-1])+' '; }
+    if(d) svg.appendChild(el('path',{d:d+back+'Z',fill:cssv(SER[k]),class:'band',stroke:cssv('--surface')}));
+  }
+  if(M0.refLinea){
+    svg.appendChild(el('line',{class:'ref',x1:M.l,x2:M.l+PW,y1:Y(100),y2:Y(100),stroke:cssv('--ink2')}));
+    const rl=el('text',{class:'reflab',x:M.l+PW,y:Y(100)-7,'text-anchor':'end'}); rl.textContent='100% del activo neto'; svg.appendChild(rl);
+  }
+  leyenda(M0.clases.map((c,k)=>({n:nc(c),col:cssv(SER[k])})));
+  hover(i=>{
+    if(tops[i]==null)return null;
+    const rows=M0.clases.map((c,k)=>({n:nc(c),c:cssv(SER[k]),v:cols[k][i]}));
+    const extra = modo==='cnbv' ? (M0.serie(grupo,ent,'Derivados')||[])[i+i0] : null;
+    return {t:etqL(F[i]),rows,tot:{n:modo==='consar'?'Suma de las ocho':'Suma',v:sums[i]},
+            extra: extra!=null?{n:'Derivados (valuación, fuera de la composición)',v:extra}:null};
+  });
+}
 
-// Ultimo indice en que la afore tiene las ocho clases reportadas para esa siefore.
-function ultimoMes(s,a){
-  for(let i=D.fechas.length-1;i>=0;i--){
+function drawLines(){
+  const es=M0.entidades(grupo), cols=es.map(a=>val(a,clase));
+  const mx=Math.max(...cols.flat().filter(v=>v!=null),1);
+  const ymax=Math.max(1,Math.ceil(mx*1.12));
+  const {g,Y}=ejes(ymax); svg.appendChild(g);
+  const gris=cssv('--axis'), acc=cssv('--s1');
+  const path=(s,cl,w,op)=>{
+    let d='',open=false;
+    s.forEach((v,i)=>{ if(v==null){open=false;return} d+=(open?'L':'M')+X(i)+' '+Y(v)+' '; open=true; });
+    if(!d)return; const p=el('path',{d,class:'ln',stroke:cl}); p.setAttribute('stroke-width',w); p.style.opacity=op; svg.appendChild(p);
+  };
+  es.forEach((a,ai)=>{ if(a!==ent) path(cols[ai],gris,1.5,es.length>25?.35:.55); });
+  const ai=es.indexOf(ent); if(ai>=0){
+    path(cols[ai],acc,2.5,1);
+    let last=-1; cols[ai].forEach((v,i)=>{ if(v!=null)last=i });
+    if(last>=0){
+      svg.appendChild(el('circle',{cx:X(last),cy:Y(cols[ai][last]),r:4,fill:acc,stroke:cssv('--surface'),'stroke-width':2}));
+      const lb=el('text',{x:X(last)-9,y:Y(cols[ai][last])-9,'text-anchor':'end',class:'reflab'});
+      lb.textContent=ent+' '+cols[ai][last].toFixed(1)+'%'; lb.setAttribute('fill',acc); svg.appendChild(lb);
+    }
+  }
+  leyenda([{n:ent,col:acc},{n:'Resto de '+(modo==='consar'?'las afores':'los fondos de '+grupo)+' ('+(es.length-1)+')',col:gris}]);
+  hover(i=>({t:etqL(F[i]),
+    rows:es.map((a,k)=>({n:a,c:a===ent?acc:gris,v:cols[k][i]})).filter(r=>r.v!=null).sort((x,y)=>y.v-x.v).slice(0,15), tot:null}));
+}
+
+// ---------- Panorama ----------
+function ultimoMes(g,e){
+  const fe=M0.fechas;
+  for(let i=fe.length-1;i>=0;i--){
     let ok=true;
-    for(const c of D.clases){const v=D.series[s][a][c]; if(!v||v[i]==null){ok=false;break}}
+    for(const c of M0.clases){const v=M0.serie(g,e,c); if(!v||v[i]==null){ok=false;break}}
     if(ok)return i;
   }
   return -1;
 }
-
-// Treemap "squarified" (Bruls, Huizing y van Wijk). items: [{v,...}] con v>0.
 function squarify(items,x,y,w,h){
   const out=[]; items=items.filter(it=>it.v>0).sort((p,q)=>q.v-p.v);
   const total=items.reduce((s,it)=>s+it.v,0); if(!total)return out;
@@ -317,50 +498,37 @@ function squarify(items,x,y,w,h){
     const lado=Math.min(w,h); let fila=[rest[0]]; let k=1;
     while(k<rest.length && worst([...fila,rest[k]],lado)<=worst(fila,lado)){fila.push(rest[k]);k++}
     rest=rest.slice(k);
-    const s=fila.reduce((t,r)=>t+r.a,0), grueso=s/lado;
-    let off=0;
+    const s=fila.reduce((t,r)=>t+r.a,0), grueso=s/lado; let off=0;
     for(const r of fila){
       const largo=r.a/grueso;
-      if(w>=h) out.push({...r,x:x,y:y+off,w:grueso,h:largo});
-      else     out.push({...r,x:x+off,y:y,w:largo,h:grueso});
+      if(w>=h) out.push({...r,x:x,y:y+off,w:grueso,h:largo}); else out.push({...r,x:x+off,y:y,w:largo,h:grueso});
       off+=largo;
     }
     if(w>=h){x+=grueso;w-=grueso}else{y+=grueso;h-=grueso}
   }
   return out;
 }
-
 function drawPanorama(){
   const P=document.getElementById('pan'); P.innerHTML='';
-  const ultimoGlobal=D.fechas.length-1;
-  const TW=250,TH=200;
-  let ptip=document.createElement('div'); ptip.className='tip'; P.appendChild(ptip);
-  D.siefores.forEach(s=>{
-    const i=ultimoMes(s,afore);
+  const fe=M0.fechas, ultimoGlobal=fe.length-1, TW=250, TH=200;
+  const ptip=document.createElement('div'); ptip.className='tip'; P.appendChild(ptip);
+  M0.panItems(grupo,ent).forEach(it=>{
+    const i=ultimoMes(it.g,it.e);
     const card=document.createElement('div'); card.className='tm';
     const head=document.createElement('div'); head.className='tm-head';
-    const h3=document.createElement('h3'); h3.textContent=s.replace('Siefore ','SB ').replace('SB Pensiones','Pensiones').replace('SB Inicial','Inicial');
-    h3.title=s; head.appendChild(h3);
-    const m=document.createElement('span'); m.className='m'; head.appendChild(m);
-    card.appendChild(head);
-    if(i<0){
-      m.textContent='sin dato';
-      const v=document.createElement('div'); v.className='vacio'; v.textContent='Sin cartera reportada'; card.appendChild(v);
-      P.appendChild(card); return;
-    }
-    m.textContent=etqL(D.fechas[i]); if(i<ultimoGlobal)m.classList.add('viejo');
-    const items=D.clases.map((c,k)=>({c,k,v:D.series[s][afore][c][i]}));
-    const suma=items.reduce((t,it)=>t+it.v,0);
+    const h3=document.createElement('h3'); h3.textContent=it.titulo; h3.title=it.full; head.appendChild(h3);
+    const m=document.createElement('span'); m.className='m'; head.appendChild(m); card.appendChild(head);
+    if(i<0){ m.textContent='sin dato'; const v=document.createElement('div'); v.className='vacio'; v.textContent='Sin cartera reportada'; card.appendChild(v); P.appendChild(card); return; }
+    m.textContent=etqL(fe[i]); if(i<ultimoGlobal)m.classList.add('viejo');
+    const items=M0.clases.map((c,k)=>({c,k,v:M0.serie(it.g,it.e,c)[i]}));
+    const suma=items.reduce((t,x)=>t+x.v,0);
     const sv=el('svg',{viewBox:'0 0 '+TW+' '+TH,preserveAspectRatio:'none',role:'img'});
-    sv.setAttribute('aria-label',s+', '+afore+', '+etqL(D.fechas[i]));
+    sv.setAttribute('aria-label',it.full+', '+etqL(fe[i]));
     squarify(items,0,0,TW,TH).forEach(r=>{
       const g=el('g',{});
-      const rc=el('rect',{class:'c',x:r.x,y:r.y,width:r.w,height:r.h,fill:cssv(SER[r.k]),stroke:cssv('--surface')});
-      g.appendChild(rc);
+      g.appendChild(el('rect',{class:'c',x:r.x,y:r.y,width:r.w,height:r.h,fill:cssv(SER[r.k]),stroke:cssv('--surface')}));
       if(r.w>58 && r.h>26){
-        let lab=CORTA[r.c]||nc(r.c);
-        // recorta la etiqueta si no cabe (≈5.4 px por caracter a 9.5 px)
-        const cabe=Math.floor((r.w-10)/5.4);
+        let lab=CORTA[r.c]||nc(r.c); const cabe=Math.floor((r.w-10)/5.4);
         if(lab.length>cabe) lab = cabe>3 ? lab.slice(0,cabe-1)+'…' : '';
         const t=el('text',{class:'lab',x:r.x+5,y:r.y+12}); t.textContent=lab; g.appendChild(t);
         const p=el('text',{class:'pct',x:r.x+5,y:r.y+23}); p.textContent=r.v.toFixed(1)+'%'; g.appendChild(p);
@@ -368,10 +536,10 @@ function drawPanorama(){
         const p=el('text',{class:'pct',x:r.x+4,y:r.y+11}); p.textContent=r.v.toFixed(1); g.appendChild(p);
       }
       g.addEventListener('mousemove',ev=>{
-        ptip.innerHTML='<div class="th">'+s+' · '+etqL(D.fechas[i])+'</div>'+
+        ptip.innerHTML='<div class="th">'+it.full+' · '+etqL(fe[i])+'</div>'+
           '<div class="r"><span class="sw" style="background:'+cssv(SER[r.k])+'"></span><span class="nm">'+nc(r.c)+
           '</span><span class="vv">'+r.v.toFixed(2)+'%</span></div>'+
-          '<div class="tot"><span class="nm">Suma de las ocho</span><span class="vv">'+suma.toFixed(2)+'%</span></div>';
+          '<div class="tot"><span class="nm">Suma</span><span class="vv">'+suma.toFixed(2)+'%</span></div>';
         ptip.style.opacity=1;
         const pr=P.getBoundingClientRect(); let left=ev.clientX-pr.left+14, top=ev.clientY-pr.top+14;
         if(left+ptip.offsetWidth>pr.width)left=ev.clientX-pr.left-ptip.offsetWidth-14;
@@ -382,175 +550,80 @@ function drawPanorama(){
     });
     card.appendChild(sv);
     const sm=document.createElement('div'); sm.className='sum';
-    sm.innerHTML='Suma de las ocho: <b>'+suma.toFixed(1)+'%</b> del activo neto';
-    card.appendChild(sm);
-    P.appendChild(card);
+    sm.innerHTML= modo==='consar' ? 'Suma de las ocho: <b>'+suma.toFixed(1)+'%</b> '+M0.sumaLabel
+                                  : (DF.fondos[it.e].tipo||'')+' · suma <b>'+suma.toFixed(1)+'%</b>';
+    card.appendChild(sm); P.appendChild(card);
   });
-  leyenda(D.clases.map((c,k)=>({n:nc(c),col:cssv(SER[k])})));
+  leyenda(M0.clases.map((c,k)=>({n:nc(c),col:cssv(SER[k])})));
 }
 
-function drawStack(){
-  const cols=D.clases.map(c=>val(afore,c));
-  const tops=[], sums=[];
-  for(let i=0;i<F.length;i++){
-    let acc=0,ok=true; const col=[];
-    for(let k=0;k<8;k++){const v=cols[k][i]; if(v==null){ok=false;break} acc+=v; col.push(acc)}
-    tops.push(ok?col:null); sums.push(ok?acc:null);
-  }
-  const mx=Math.max(105,...sums.filter(v=>v!=null));
-  const ymax=Math.ceil(mx/5)*5;
-  const {g,Y}=ejes(ymax); svg.appendChild(g);
-
-  for(let k=7;k>=0;k--){
-    let d='',open=false;
-    for(let i=0;i<F.length;i++){
-      if(tops[i]==null){open=false;continue}
-      d += (open?'L':'M')+X(i)+' '+Y(tops[i][k])+' '; open=true;
-    }
-    let back='';
-    for(let i=F.length-1;i>=0;i--){
-      if(tops[i]==null)continue;
-      back += 'L'+X(i)+' '+Y(k===0?0:tops[i][k-1])+' ';
-    }
-    svg.appendChild(el('path',{d:d+back+'Z',fill:cssv(SER[k]),class:'band',stroke:cssv('--surface')}));
-  }
-  svg.appendChild(el('line',{class:'ref',x1:M.l,x2:M.l+PW,y1:Y(100),y2:Y(100),stroke:cssv('--ink2')}));
-  const rl=el('text',{class:'reflab',x:M.l+PW,y:Y(100)-7,'text-anchor':'end'});
-  rl.textContent='100% del activo neto'; svg.appendChild(rl);
-
-  leyenda(D.clases.map((c,k)=>({n:nc(c),col:cssv(SER[k])})));
-  hover(i=>{
-    if(tops[i]==null)return null;
-    const rows=D.clases.map((c,k)=>({n:nc(c),c:cssv(SER[k]),v:cols[k][i]}));
-    return {t:etqL(F[i]),rows,tot:{n:'Suma de las ocho',v:sums[i]}};
-  });
-}
-
-function drawLines(){
-  const cols=D.afores.map(a=>val(a,clase));
-  const mx=Math.max(...cols.flat().filter(v=>v!=null),1);
-  const ymax=Math.max(1,Math.ceil(mx*1.12));
-  const {g,Y}=ejes(ymax); svg.appendChild(g);
-  const gris=cssv('--axis'), acc=cssv('--s1');
-  const path=(s,cl,w,op,dash)=>{
-    let d='',open=false;
-    s.forEach((v,i)=>{ if(v==null){open=false;return} d+=(open?'L':'M')+X(i)+' '+Y(v)+' '; open=true; });
-    const p=el('path',{d,class:'ln',stroke:cl}); p.setAttribute('stroke-width',w);
-    p.style.opacity=op; if(dash)p.setAttribute('stroke-dasharray',dash); svg.appendChild(p); return p;
-  };
-  // primero las demas, en gris
-  D.afores.forEach((a,ai)=>{ if(a!==afore) path(cols[ai],gris,1.5,.55); });
-  // luego la seleccionada, encima
-  const ai=D.afores.indexOf(afore);
-  path(cols[ai],acc,2.5,1);
-  // punto y etiqueta al final de la serie resaltada
-  let last=-1; cols[ai].forEach((v,i)=>{ if(v!=null)last=i });
-  if(last>=0){
-    svg.appendChild(el('circle',{cx:X(last),cy:Y(cols[ai][last]),r:4,fill:acc,
-      stroke:cssv('--surface'),'stroke-width':2}));
-    const lb=el('text',{x:X(last)-9,y:Y(cols[ai][last])-9,'text-anchor':'end',class:'reflab'});
-    lb.textContent=afore+' '+cols[ai][last].toFixed(1)+'%'; lb.setAttribute('fill',acc);
-    svg.appendChild(lb);
-  }
-  leyenda([{n:afore,col:acc},{n:'Las otras nueve afores',col:gris}]);
-  hover(i=>({t:etqL(F[i]),
-    rows:D.afores.map((a,k)=>({n:a,c:a===afore?acc:gris,v:cols[k][i]})).filter(r=>r.v!=null)
-        .sort((x,y)=>y.v-x.v), tot:null}));
-}
-
+// ---------- leyenda, hover, tabla ----------
 function leyenda(items){
   const L=document.getElementById('legend');L.innerHTML='';
-  items.forEach(it=>{
-    const d=document.createElement('div');d.className='lg';
+  items.forEach(it=>{const d=document.createElement('div');d.className='lg';
     const s=document.createElement('span');s.className='sw';s.style.background=it.col;
-    if(it.dash)s.style.opacity=.85;
-    d.appendChild(s);d.appendChild(document.createTextNode(it.n));L.appendChild(d);
-  });
+    d.appendChild(s);d.appendChild(document.createTextNode(it.n));L.appendChild(d)});
 }
-
 function hover(get){
-  const line=el('line',{class:'cross',y1:M.t,y2:M.t+PH,stroke:cssv('--ink2')});
-  line.style.opacity=0; svg.appendChild(line);
+  const line=el('line',{class:'cross',y1:M.t,y2:M.t+PH,stroke:cssv('--ink2')}); line.style.opacity=0; svg.appendChild(line);
   const move=ev=>{
-    const r=svg.getBoundingClientRect();
-    const px=(ev.clientX-r.left)/r.width*W;
-    let i=Math.round((px-M.l)/(PW/(F.length-1)));
-    i=Math.max(0,Math.min(F.length-1,i));
-    const data=get(i);
-    if(!data){line.style.opacity=0;tip.style.opacity=0;return}
+    const r=svg.getBoundingClientRect(); const px=(ev.clientX-r.left)/r.width*W;
+    let i=Math.round((px-M.l)/(PW/Math.max(1,F.length-1))); i=Math.max(0,Math.min(F.length-1,i));
+    const data=get(i); if(!data){line.style.opacity=0;tip.style.opacity=0;return}
     line.setAttribute('x1',X(i));line.setAttribute('x2',X(i));line.style.opacity=.5;
     let html='<div class="th">'+data.t+'</div>';
-    data.rows.forEach(rw=>{html+='<div class="r"><span class="sw" style="background:'+rw.c+'"></span>'+
-      '<span class="nm">'+rw.n+'</span><span class="vv">'+rw.v.toFixed(2)+'</span></div>'});
-    if(data.tot)html+='<div class="tot"><span class="nm">'+data.tot.n+'</span><span class="vv">'+
-      data.tot.v.toFixed(2)+'%</span></div>';
+    data.rows.forEach(rw=>{html+='<div class="r"><span class="sw" style="background:'+rw.c+'"></span><span class="nm">'+rw.n+'</span><span class="vv">'+rw.v.toFixed(2)+'</span></div>'});
+    if(data.tot)html+='<div class="tot"><span class="nm">'+data.tot.n+'</span><span class="vv">'+data.tot.v.toFixed(2)+'%</span></div>';
+    if(data.extra)html+='<div class="tot" style="border-top:0;padding-top:2px"><span class="nm">'+data.extra.n+'</span><span class="vv">'+data.extra.v.toFixed(3)+'%</span></div>';
     tip.innerHTML=html; tip.style.opacity=1;
     const bw=box.getBoundingClientRect().width, tw=tip.offsetWidth;
     let left=(X(i)/W)*bw+14; if(left+tw>bw)left=(X(i)/W)*bw-tw-14;
     tip.style.left=Math.max(0,left)+'px';
     tip.style.top=Math.max(0,Math.min(ev.clientY-box.getBoundingClientRect().top-30, box.getBoundingClientRect().height-tip.offsetHeight))+'px';
   };
-  svg.addEventListener('mousemove',move);
-  svg.addEventListener('mouseleave',()=>{line.style.opacity=0;tip.style.opacity=0});
+  svg.onmousemove=move; svg.onmouseleave=()=>{line.style.opacity=0;tip.style.opacity=0};
 }
-
 function buildTable(){
   const t=document.getElementById('table');
   if(vista==='pan'){
-    let h='<thead><tr><th>Siefore</th><th>Mes</th>'+D.clases.map(c=>'<th>'+nc(c)+'</th>').join('')+'<th>Suma</th></tr></thead><tbody>';
-    D.siefores.forEach(s=>{
-      const i=ultimoMes(s,afore);
-      h+='<tr><td>'+s+'</td>';
-      if(i<0){h+='<td class="na">—</td>'+D.clases.map(()=>'<td class="na">—</td>').join('')+'<td class="na">—</td></tr>';return}
-      let sum=0; h+='<td>'+etqL(D.fechas[i])+'</td>';
-      D.clases.forEach(c=>{const v=D.series[s][afore][c][i]; sum+=v; h+='<td>'+v.toFixed(2)+'</td>'});
+    const items=M0.panItems(grupo,ent);
+    let h='<thead><tr><th>'+(modo==='consar'?'Siefore':'Fondo')+'</th><th>Mes</th>'+M0.clases.map(c=>'<th>'+nc(c)+'</th>').join('')+'<th>Suma</th></tr></thead><tbody>';
+    items.forEach(it=>{
+      const i=ultimoMes(it.g,it.e); h+='<tr><td>'+it.titulo+'</td>';
+      if(i<0){h+='<td class="na">—</td>'+M0.clases.map(()=>'<td class="na">—</td>').join('')+'<td class="na">—</td></tr>';return}
+      let sum=0; h+='<td>'+etqL(M0.fechas[i])+'</td>';
+      M0.clases.forEach(c=>{const v=M0.serie(it.g,it.e,c)[i]; sum+=v; h+='<td>'+v.toFixed(2)+'</td>'});
       h+='<td>'+sum.toFixed(2)+'</td></tr>';
     });
     t.innerHTML=h+'</tbody>'; return;
   }
-  const cs = vista==='comp' ? D.clases : D.afores;
-  const get = vista==='comp' ? (c,i)=>D.series[siefore][afore][c][i+i0] : (a,i)=>D.series[siefore][a][clase][i+i0];
-  let h='<thead><tr><th>Mes</th>'+cs.map(c=>'<th>'+nc(c)+'</th>').join('')+
-        (vista==='comp'?'<th>Suma</th>':'')+'</tr></thead><tbody>';
+  const cs = vista==='comp' ? M0.clases : M0.entidades(grupo);
+  const get = vista==='comp' ? (c,i)=>val(ent,c)[i] : (a,i)=>val(a,clase)[i];
+  let h='<thead><tr><th>Mes</th>'+cs.map(c=>'<th>'+nc(c)+'</th>').join('')+(vista==='comp'?'<th>Suma</th>':'')+'</tr></thead><tbody>';
   for(let i=F.length-1;i>=0;i--){
-    let s=0,ok=true;
-    h+='<tr><td>'+etqL(F[i])+'</td>';
+    let s=0,ok=true; h+='<tr><td>'+etqL(F[i])+'</td>';
     cs.forEach(c=>{const v=get(c,i); if(v==null){ok=false;h+='<td class="na">—</td>'}else{s+=v;h+='<td>'+v.toFixed(2)+'</td>'}});
-    if(vista==='comp')h+='<td>'+(ok?s.toFixed(2):'—')+'</td>';
-    h+='</tr>';
+    if(vista==='comp')h+='<td>'+(ok?s.toFixed(2):'—')+'</td>'; h+='</tr>';
   }
   t.innerHTML=h+'</tbody>';
 }
 
-selSiefores(); selClases();
-document.getElementById('pie').textContent =
-  'Cosechado de SISET el '+D.publicado+' · base reconstruida el '+D.actualizado+'.';
-const pl=(n,s,p)=>n+' '+(n===1?s:p);
-document.getElementById('sub').textContent =
-  'Composición mensual por administradora. '+pl(D.clases.length,'clase de activo','clases de activo')+
-  ', '+pl(D.afores.length,'afore','afores')+', '+pl(D.siefores.length,'siefore','siefores')+
-  ', '+pl(D.fechas.length,'corte mensual','cortes mensuales')+'.';
-
-// cifras de la nota, calculadas del dato cargado
-(()=>{
+// ---------- arranque ----------
+document.getElementById('pie').textContent='Cosechado de SISET el '+D.publicado+' · base reconstruida el '+D.actualizado+'.';
+document.getElementById('pie2').textContent='Extraído del archivo R7 de CNBV · base reconstruida el '+DF.actualizado+'.';
+document.getElementById('corteConsar').textContent=etqL(D.fechas[D.fechas.length-1]);
+document.getElementById('corteCnbv').textContent=etqL(DF.fechas[DF.fechas.length-1]);
+document.getElementById('nReglas').textContent=DF.reglas_catalogo||'';
+(()=>{ // cifras de la nota CONSAR, calculadas del dato
   const sumas=[]; let peor=null;
-  D.siefores.forEach(s=>D.afores.forEach(a=>{
-    D.fechas.forEach((f,i)=>{
-      let acc=0,ok=true;
-      for(const c of D.clases){const v=D.series[s][a][c]; if(!v||v[i]==null){ok=false;break} acc+=v[i]}
-      if(ok){sumas.push(acc); if(!peor||acc>peor.v)peor={v:acc,a,s,f}}
-    });
-  }));
-  if(!sumas.length)return;
-  sumas.sort((x,y)=>x-y);
-  const med=sumas[Math.floor(sumas.length/2)];
-  document.getElementById('nMed').textContent='mediana de '+med.toFixed(1)+'%';
-  if(peor && peor.v>100){
-    document.getElementById('nMax').textContent=
-      ' (el máximo es '+peor.v.toFixed(1)+'%, '+peor.a+' en '+etqL(peor.f)+')';
-  }
+  D.siefores.forEach(s=>D.afores.forEach(a=>{D.fechas.forEach((f,i)=>{
+    let acc=0,ok=true; for(const c of D.clases){const v=D.series[s][a][c]; if(!v||v[i]==null){ok=false;break} acc+=v[i]}
+    if(ok){sumas.push(acc); if(!peor||acc>peor.v)peor={v:acc,a,s,f}}})}));
+  if(!sumas.length)return; sumas.sort((x,y)=>x-y);
+  document.getElementById('nMed').textContent='mediana de '+sumas[Math.floor(sumas.length/2)].toFixed(1)+'%';
+  if(peor && peor.v>100) document.getElementById('nMax').textContent=' (el máximo es '+peor.v.toFixed(1)+'%, '+peor.a+' en '+etqL(peor.f)+')';
 })();
-render();
+cambiarModo(location.hash==='#fondos'?'cnbv':'consar');
 new MutationObserver(()=>render()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>render());
 </script>
