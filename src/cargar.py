@@ -20,7 +20,8 @@ Hallazgos de la fuente que el codigo respeta
   nombre: su etiqueta cambia entre cuadros ("Estructurados" vs "Estructurados y
   FIBRAS", "Mercancias" vs "Mercancias" con acento).
 - "XXI Banorte" y "XXI-Banorte" son la MISMA afore escrita de dos formas segun
-  el cuadro. Sin normalizar darian once afores donde hay diez.
+  el cuadro, y lo mismo "Citibanamex" y "Banamex". Sin normalizar darian once
+  afores donde hay diez.
 - CONSAR calcula sus porcentajes sobre ACTIVOS NETOS. Las ocho clases no suman
   100% (mediana ~97.3%) y en 2020-2021 algunos meses pasan de 100%. No son una
   particion. No se normaliza nada para forzar el cierre.
@@ -51,11 +52,15 @@ def fin_de_mes(p: str) -> dt.date:
 
 
 def normaliza_afore(s: str) -> str:
-    """'XXI-Banorte' y 'XXI Banorte' son la misma entidad."""
+    """Una afore, un nombre. SISET escribe la misma entidad de varias formas
+    segun el cuadro: 'XXI-Banorte' / 'XXI Banorte', y 'Citibanamex' / 'Banamex'
+    (la afore se renombro; 8 de los 88 cuadros conservan el nombre viejo).
+    Verificado sobre el crudo: ningun cuadro trae las dos variantes a la vez,
+    asi que unificar no colisiona ningun dato."""
     base = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode()
     base = base.replace("-", " ").replace("  ", " ").strip().lower()
     return {"xxi banorte": "XXI-Banorte", "pensionissste": "PensionISSSTE",
-            "sura": "SURA"}.get(base, s.replace("-", "-").strip())
+            "sura": "SURA", "citibanamex": "Banamex", "banamex": "Banamex"}.get(base, s.strip())
 
 
 def numero(v):

@@ -87,8 +87,9 @@ una misma serie sin distinguirlos.
 **La fila de total de cada cuadro se identifica por posición, no por nombre.** Su
 etiqueta cambia entre cuadros ("Estructurados" vs "Estructurados y FIBRAS").
 
-**"XXI Banorte" y "XXI-Banorte" son la misma afore.** Sin normalizar darían once
-afores donde hay diez.
+**"XXI Banorte" y "XXI-Banorte" son la misma afore, y "Citibanamex" y "Banamex"
+también** (8 de los 88 cuadros conservan el nombre viejo; ninguno trae ambos a la
+vez). Sin normalizar darían once afores donde hay diez.
 
 **Ruptura de taxonomía en abril de 2025.** Se desagregaron BONDES G y FONADIN, se
 consolidaron los BPAS y apareció "Otros Gubernamental". Afecta el desglose por

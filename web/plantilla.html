@@ -105,6 +105,25 @@ td{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink2)}
 th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
 td.na{color:var(--muted)}
 
+/* Panorama: un treemap por siefore */
+.pan{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;position:relative}
+.tm{display:flex;flex-direction:column;gap:6px;min-width:0}
+.tm-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.tm-head h3{margin:0;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-head .m{font-family:var(--mono);font-size:10.5px;color:var(--muted);white-space:nowrap}
+.tm-head .m.viejo{color:var(--warn)}
+.tm svg{aspect-ratio:5/4;height:auto}
+.tm rect.c{stroke:var(--surface);stroke-width:1.5;transition:opacity .12s}
+.tm svg:hover rect.c{opacity:.75}
+.tm svg rect.c:hover{opacity:1}
+.tm text{pointer-events:none;font-family:var(--sans);fill:#fff}
+.tm text.lab{font-size:9.5px;font-weight:500}
+.tm text.pct{font-family:var(--mono);font-size:9px;opacity:.9}
+.tm .sum{font-family:var(--mono);font-size:10.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.tm .sum b{font-weight:500;color:var(--ink)}
+.tm .vacio{aspect-ratio:5/4;border:1px dashed var(--rule);border-radius:2px;display:flex;align-items:center;
+  justify-content:center;color:var(--muted);font-size:12px}
+
 footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);padding-top:16px;
   display:flex;flex-direction:column;gap:5px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -129,7 +148,7 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
 </div>
 
 <div class="controls">
-  <div class="field">
+  <div class="field" id="sieforeWrap">
     <label for="siefore">Siefore</label>
     <select id="siefore"></select>
   </div>
@@ -142,6 +161,7 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
     <div class="chips" id="vistas" role="group" aria-labelledby="lb-vi">
       <button class="chip" data-v="comp" aria-pressed="true">Composición</button>
       <button class="chip" data-v="comp2" aria-pressed="false">Comparar afores</button>
+      <button class="chip" data-v="pan" aria-pressed="false">Panorama</button>
     </div>
   </div>
   <div class="field" id="claseWrap" hidden>
@@ -159,6 +179,7 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
     <svg id="svg" viewBox="0 0 980 420" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="chartTitle"></svg>
     <div class="tip" id="tip"></div>
   </div>
+  <div class="pan" id="pan" hidden></div>
   <div class="legend" id="legend"></div>
 </div>
 
@@ -227,6 +248,7 @@ document.getElementById('vistas').onclick=e=>{
   vista=b.dataset.v;
   document.querySelectorAll('#vistas .chip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===vista));
   document.getElementById('claseWrap').hidden = vista!=='comp2';
+  document.getElementById('sieforeWrap').hidden = vista==='pan';
   render();
 };
 
@@ -255,13 +277,116 @@ function ejes(ymax){
 
 function render(){
   chipsAfores(); svg.innerHTML=''; tip.style.opacity=0;
+  const pan=vista==='pan';
+  box.hidden=pan; document.getElementById('pan').hidden=!pan;
   document.getElementById('chartTitle').textContent =
+    pan ? 'Panorama · '+afore+' · último mes de cada siefore' :
     vista==='comp' ? 'Composición · '+afore+' · '+siefore : nc(clase)+' · '+afore+' frente a las demás · '+siefore;
   document.getElementById('chartHint').textContent =
+    pan ? 'Un treemap por siefore · el área de cada rectángulo es el % sobre activos netos' :
     vista==='comp' ? 'Área apilada sobre activos netos · la línea punteada marca el 100%'
                    : 'La afore seleccionada, resaltada contra las otras nueve · % sobre activos netos';
-  vista==='comp' ? drawStack() : drawLines();
+  pan ? drawPanorama() : vista==='comp' ? drawStack() : drawLines();
   buildTable();
+}
+
+// ---------- Panorama: un treemap por siefore, ultimo mes con dato ----------
+const CORTA={'Deuda Gubernamental':'Deuda gub.','Deuda Privada Nacional':'Deuda priv.',
+  'Deuda Internacional':'Deuda int.','Renta Variable Nacional':'RV nacional',
+  'Renta Variable Internacional':'RV internacional','Estructurados y FIBRAS':'Estruct. y FIBRAS',
+  'Mercancias':'Mercancías','Otros Activos':'Otros'};
+
+// Ultimo indice en que la afore tiene las ocho clases reportadas para esa siefore.
+function ultimoMes(s,a){
+  for(let i=D.fechas.length-1;i>=0;i--){
+    let ok=true;
+    for(const c of D.clases){const v=D.series[s][a][c]; if(!v||v[i]==null){ok=false;break}}
+    if(ok)return i;
+  }
+  return -1;
+}
+
+// Treemap "squarified" (Bruls, Huizing y van Wijk). items: [{v,...}] con v>0.
+function squarify(items,x,y,w,h){
+  const out=[]; items=items.filter(it=>it.v>0).sort((p,q)=>q.v-p.v);
+  const total=items.reduce((s,it)=>s+it.v,0); if(!total)return out;
+  const esc=w*h/total; let rest=items.map(it=>({...it,a:it.v*esc}));
+  const worst=(fila,lado)=>{const s=fila.reduce((t,r)=>t+r.a,0),s2=s*s,l2=lado*lado;
+    let mx=0; for(const r of fila){mx=Math.max(mx,l2*r.a/s2,s2/(l2*r.a))} return mx};
+  while(rest.length){
+    const lado=Math.min(w,h); let fila=[rest[0]]; let k=1;
+    while(k<rest.length && worst([...fila,rest[k]],lado)<=worst(fila,lado)){fila.push(rest[k]);k++}
+    rest=rest.slice(k);
+    const s=fila.reduce((t,r)=>t+r.a,0), grueso=s/lado;
+    let off=0;
+    for(const r of fila){
+      const largo=r.a/grueso;
+      if(w>=h) out.push({...r,x:x,y:y+off,w:grueso,h:largo});
+      else     out.push({...r,x:x+off,y:y,w:largo,h:grueso});
+      off+=largo;
+    }
+    if(w>=h){x+=grueso;w-=grueso}else{y+=grueso;h-=grueso}
+  }
+  return out;
+}
+
+function drawPanorama(){
+  const P=document.getElementById('pan'); P.innerHTML='';
+  const ultimoGlobal=D.fechas.length-1;
+  const TW=250,TH=200;
+  let ptip=document.createElement('div'); ptip.className='tip'; P.appendChild(ptip);
+  D.siefores.forEach(s=>{
+    const i=ultimoMes(s,afore);
+    const card=document.createElement('div'); card.className='tm';
+    const head=document.createElement('div'); head.className='tm-head';
+    const h3=document.createElement('h3'); h3.textContent=s.replace('Siefore ','SB ').replace('SB Pensiones','Pensiones').replace('SB Inicial','Inicial');
+    h3.title=s; head.appendChild(h3);
+    const m=document.createElement('span'); m.className='m'; head.appendChild(m);
+    card.appendChild(head);
+    if(i<0){
+      m.textContent='sin dato';
+      const v=document.createElement('div'); v.className='vacio'; v.textContent='Sin cartera reportada'; card.appendChild(v);
+      P.appendChild(card); return;
+    }
+    m.textContent=etqL(D.fechas[i]); if(i<ultimoGlobal)m.classList.add('viejo');
+    const items=D.clases.map((c,k)=>({c,k,v:D.series[s][afore][c][i]}));
+    const suma=items.reduce((t,it)=>t+it.v,0);
+    const sv=el('svg',{viewBox:'0 0 '+TW+' '+TH,preserveAspectRatio:'none',role:'img'});
+    sv.setAttribute('aria-label',s+', '+afore+', '+etqL(D.fechas[i]));
+    squarify(items,0,0,TW,TH).forEach(r=>{
+      const g=el('g',{});
+      const rc=el('rect',{class:'c',x:r.x,y:r.y,width:r.w,height:r.h,fill:cssv(SER[r.k]),stroke:cssv('--surface')});
+      g.appendChild(rc);
+      if(r.w>58 && r.h>26){
+        let lab=CORTA[r.c]||nc(r.c);
+        // recorta la etiqueta si no cabe (≈5.4 px por caracter a 9.5 px)
+        const cabe=Math.floor((r.w-10)/5.4);
+        if(lab.length>cabe) lab = cabe>3 ? lab.slice(0,cabe-1)+'…' : '';
+        const t=el('text',{class:'lab',x:r.x+5,y:r.y+12}); t.textContent=lab; g.appendChild(t);
+        const p=el('text',{class:'pct',x:r.x+5,y:r.y+23}); p.textContent=r.v.toFixed(1)+'%'; g.appendChild(p);
+      } else if(r.w>30 && r.h>14){
+        const p=el('text',{class:'pct',x:r.x+4,y:r.y+11}); p.textContent=r.v.toFixed(1); g.appendChild(p);
+      }
+      g.addEventListener('mousemove',ev=>{
+        ptip.innerHTML='<div class="th">'+s+' · '+etqL(D.fechas[i])+'</div>'+
+          '<div class="r"><span class="sw" style="background:'+cssv(SER[r.k])+'"></span><span class="nm">'+nc(r.c)+
+          '</span><span class="vv">'+r.v.toFixed(2)+'%</span></div>'+
+          '<div class="tot"><span class="nm">Suma de las ocho</span><span class="vv">'+suma.toFixed(2)+'%</span></div>';
+        ptip.style.opacity=1;
+        const pr=P.getBoundingClientRect(); let left=ev.clientX-pr.left+14, top=ev.clientY-pr.top+14;
+        if(left+ptip.offsetWidth>pr.width)left=ev.clientX-pr.left-ptip.offsetWidth-14;
+        ptip.style.left=Math.max(0,left)+'px'; ptip.style.top=top+'px';
+      });
+      g.addEventListener('mouseleave',()=>{ptip.style.opacity=0});
+      sv.appendChild(g);
+    });
+    card.appendChild(sv);
+    const sm=document.createElement('div'); sm.className='sum';
+    sm.innerHTML='Suma de las ocho: <b>'+suma.toFixed(1)+'%</b> del activo neto';
+    card.appendChild(sm);
+    P.appendChild(card);
+  });
+  leyenda(D.clases.map((c,k)=>({n:nc(c),col:cssv(SER[k])})));
 }
 
 function drawStack(){
@@ -371,6 +496,18 @@ function hover(get){
 
 function buildTable(){
   const t=document.getElementById('table');
+  if(vista==='pan'){
+    let h='<thead><tr><th>Siefore</th><th>Mes</th>'+D.clases.map(c=>'<th>'+nc(c)+'</th>').join('')+'<th>Suma</th></tr></thead><tbody>';
+    D.siefores.forEach(s=>{
+      const i=ultimoMes(s,afore);
+      h+='<tr><td>'+s+'</td>';
+      if(i<0){h+='<td class="na">—</td>'+D.clases.map(()=>'<td class="na">—</td>').join('')+'<td class="na">—</td></tr>';return}
+      let sum=0; h+='<td>'+etqL(D.fechas[i])+'</td>';
+      D.clases.forEach(c=>{const v=D.series[s][afore][c][i]; sum+=v; h+='<td>'+v.toFixed(2)+'</td>'});
+      h+='<td>'+sum.toFixed(2)+'</td></tr>';
+    });
+    t.innerHTML=h+'</tbody>'; return;
+  }
   const cs = vista==='comp' ? D.clases : D.afores;
   const get = vista==='comp' ? (c,i)=>D.series[siefore][afore][c][i+i0] : (a,i)=>D.series[siefore][a][clase][i+i0];
   let h='<thead><tr><th>Mes</th>'+cs.map(c=>'<th>'+nc(c)+'</th>').join('')+
