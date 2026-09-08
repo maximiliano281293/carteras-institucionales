@@ -30,6 +30,7 @@ python src/extraer_r7.py crudos/052_1G_R7_2026.xlsm   # -> crudos/r7_2026_<sha>.
 python src/cargar_r7.py --publicado 2026-08-17        # -> holdings_cnbv.parquet + allocations_cnbv.parquet + pagina_fondos.json
 # Página (las dos secciones)
 python src/construir_pagina.py    # -> docs/index.html
+#
 ```
 
 `cosechar_consar.py` guarda avance parcial en cada consulta: si se cae la red,
@@ -139,3 +140,4 @@ actuando como prestamista" (0.03% del sistema). **Sí hay efectivo en pesos** (`
   procedure `dbo.sp_052_1G_R7_`, o sea que hay un backend detrás. El mismo truco
   del IQY podría destaparlo, y entonces R7 también se automatiza en vez de pasar
   por Excel a mano.
+  **"Publicado en Cloudflare Workers."
