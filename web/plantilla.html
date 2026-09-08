@@ -8,7 +8,7 @@
   --rule:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
   --accent:#2a78d6; --warn:#ec835a;
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
-  --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948; --s9:#8a6a3d; --s10:#6f7480;
+  --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948; --s9:#00a6a6; --s10:#a86432;
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
 }
@@ -19,7 +19,7 @@
   --rule:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
   --accent:#3987e5; --warn:#ec835a;
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
-  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; --s9:#b08a5a; --s10:#9a9fab;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; --s9:#00a6a6; --s10:#a86432;
 }}
 :root[data-theme="dark"]{
   color-scheme:dark;
@@ -28,7 +28,7 @@
   --rule:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
   --accent:#3987e5; --warn:#ec835a;
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
-  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; --s9:#b08a5a; --s10:#9a9fab;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; --s9:#00a6a6; --s10:#a86432;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -140,6 +140,40 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
   background:var(--surface);color:var(--ink);width:150px}
 .badge{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;
   border:1px solid var(--rule);border-radius:2px;color:var(--muted);vertical-align:middle;margin-left:6px}
+.tm.click{cursor:pointer;border-radius:3px;padding:6px;margin:-6px;transition:background .12s}
+.tm.click:hover{background:var(--raised);box-shadow:0 0 0 1px var(--rule)}
+
+/* Detalle de un fondo: su universo por tipo de instrumento */
+.det{display:flex;flex-direction:column;gap:16px}
+.det-head{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:baseline}
+.det-head h3{margin:0;font-size:17px;font-weight:600}
+.det-head .meta{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.det-acciones{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.btn{font-family:var(--sans);font-size:12.5px;padding:6px 12px;border:1px solid var(--rule);background:var(--surface);
+  color:var(--ink);border-radius:2px;cursor:pointer}
+.btn:hover{border-color:var(--axis)}
+.btn.primario{background:var(--accent);border-color:var(--accent);color:#fff}
+.det-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{border:1px solid var(--rule);border-radius:3px;padding:10px 12px;background:var(--raised)}
+.kpi .l{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi .s{font-size:11.5px;color:var(--ink2)}
+.det svg.uni{width:100%;height:auto;aspect-ratio:980/470}
+.det svg.uni rect.c{stroke:var(--surface);stroke-width:2;cursor:pointer;transition:opacity .12s}
+.det svg.uni g.apagado rect.c{opacity:.28}
+.det svg.uni g.apagado text{opacity:.35}
+.det svg.uni rect.hd{cursor:pointer}
+.det svg.uni text{pointer-events:none;font-family:var(--sans)}
+.det svg.uni text.gl{font-size:11px;font-weight:600;letter-spacing:.01em}
+.det svg.uni text.lab{font-size:10.5px;font-weight:500}
+.det svg.uni text.pct{font-family:var(--mono);font-size:9.5px;opacity:.88}
+.det .filtro{font-size:12.5px;color:var(--ink2);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.det .filtro b{color:var(--ink)}
+.det table td:first-child{font-family:var(--sans)}
+.det tr.grp td{background:var(--raised);font-family:var(--sans);font-weight:600;color:var(--ink);border-top:2px solid var(--rule)}
+.det tr.sub td{color:var(--ink2);font-family:var(--sans);font-weight:500}
+.det td.emi{padding-left:28px}
+.det .neg{color:var(--warn)}
 </style>
 
 <div class="wrap">
@@ -211,6 +245,7 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
     <div class="tip" id="tip"></div>
   </div>
   <div class="pan" id="pan" hidden></div>
+  <div class="det" id="det" hidden></div>
   <div class="legend" id="legend"></div>
 </div>
 
@@ -286,6 +321,7 @@ const MODOS={
 let modo='consar', M0=MODOS[modo];
 let grupo=M0.grupoIni, ent=M0.entIni, vista='comp', clase=M0.clases[0];
 let F=[], i0=0;
+let detFondo=null, detFiltro=null;   // fondo abierto en su universo, y filtro {t:'clase'|'tv', v}
 
 function prepararFechas(){
   // primer indice con dato en toda la fuente (recorta el vacio inicial)
@@ -339,7 +375,7 @@ function selClases(){
 }
 document.getElementById('vistas').onclick=e=>{
   const b=e.target.closest('[data-v]'); if(!b)return;
-  vista=b.dataset.v;
+  vista=b.dataset.v; detFondo=null;
   document.querySelectorAll('#vistas .chip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===vista));
   render();
 };
@@ -348,7 +384,7 @@ document.getElementById('secciones').onclick=e=>{
   cambiarModo(b.dataset.m);
 };
 function cambiarModo(m){
-  modo=m; M0=MODOS[m];
+  modo=m; M0=MODOS[m]; detFondo=null;
   document.querySelectorAll('#secciones button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.m===modo));
   grupo=M0.grupoIni; ent=M0.entIni||M0.entidades(grupo)[0]; clase=M0.clases[0];
   document.getElementById('entFiltro').value='';
@@ -394,12 +430,18 @@ function ejes(ymax){
 // ---------- render ----------
 function render(){
   selEntidades(); svg.innerHTML=''; tip.style.opacity=0;
-  const pan=vista==='pan';
-  box.hidden=pan; document.getElementById('pan').hidden=!pan;
-  document.getElementById('claseWrap').hidden = vista!=='comp2';
-  document.getElementById('grupoWrap').hidden = pan && modo==='consar';
-  document.getElementById('entWrap').hidden   = pan && modo==='cnbv';
+  const det=detFondo!=null, pan=vista==='pan' && !det;
+  box.hidden=pan||det; document.getElementById('pan').hidden=!pan; document.getElementById('det').hidden=!det;
+  document.getElementById('claseWrap').hidden = vista!=='comp2' || det;
+  document.getElementById('grupoWrap').hidden = (pan && modo==='consar') || det;
+  document.getElementById('entWrap').hidden   = (pan && modo==='cnbv') || det;
+  document.querySelectorAll('#vistas .chip').forEach(x=>x.setAttribute('aria-pressed',!det && x.dataset.v===vista));
   const T=document.getElementById('chartTitle'), Hn=document.getElementById('chartHint');
+  if(det){
+    T.textContent='Universo del fondo, emisión por emisión';
+    Hn.textContent='Último mes reportado · agrupado por clase de activo · el área es el % de la cartera';
+    drawDetalle(); buildTable(); return;
+  }
   if(pan){
     T.textContent=M0.tituloPan(ent,grupo);
     Hn.textContent='Un treemap por '+(modo==='consar'?'siefore':'fondo')+' · el área de cada rectángulo es su % '+M0.sumaLabel;
@@ -552,9 +594,186 @@ function drawPanorama(){
     const sm=document.createElement('div'); sm.className='sum';
     sm.innerHTML= modo==='consar' ? 'Suma de las ocho: <b>'+suma.toFixed(1)+'%</b> '+M0.sumaLabel
                                   : (DF.fondos[it.e].tipo||'')+' · suma <b>'+suma.toFixed(1)+'%</b>';
-    card.appendChild(sm); P.appendChild(card);
+    card.appendChild(sm);
+    card.classList.add('click'); card.tabIndex=0; card.setAttribute('role','button');
+    card.title = modo==='cnbv' ? 'Abrir el universo de '+it.e : 'Ver la composición histórica de '+it.e+' en '+it.full;
+    const abrir=()=>{ if(modo==='cnbv'){abrirDetalle(it.e)} else {grupo=it.g; vista='comp'; render()} };
+    card.onclick=abrir; card.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();abrir()}};
+    P.appendChild(card);
   });
   leyenda(M0.clases.map((c,k)=>({n:nc(c),col:cssv(SER[k])})));
+}
+
+// ---------- Universo de un fondo: posiciones por tipo de instrumento ----------
+function abrirDetalle(f){ detFondo=f; detFiltro=null; ent=f; grupo=DF.fondos[f].operadora; render(); window.scrollTo({top:document.querySelector('.panel').offsetTop-12,behavior:'smooth'}); }
+const CL_DET=[...DF.clases, ...DF.fuera_composicion];
+const mdp=v=>{const a=Math.abs(v)/1e6; return (v<0?'−':'')+(a>=1000?a.toLocaleString('es-MX',{maximumFractionDigits:0}):a.toLocaleString('es-MX',{maximumFractionDigits:a>=10?0:1}))};
+const pct=(v,t)=>t>0?(100*v/t).toFixed(2)+'%':'—';
+// Tinta legible sobre un relleno: blanco o casi negro segun su luminancia.
+function inkSobre(hex){
+  const m=/^#?([0-9a-f]{6})$/i.exec(hex.trim()); if(!m)return '#fff';
+  const n=parseInt(m[1],16), c=[(n>>16)&255,(n>>8)&255,n&255].map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});
+  return (.2126*c[0]+.7152*c[1]+.0722*c[2])>0.42 ? '#141413' : '#ffffff';
+}
+
+// Recorta una etiqueta SVG al ancho disponible midiendola, no estimandola.
+function recorta(t,texto,maxw){
+  if(t.getComputedTextLength()<=maxw)return;
+  let lo=0, hi=texto.length;
+  while(lo<hi){ const m=(lo+hi+1)>>1; t.textContent=texto.slice(0,m)+'…';
+    if(t.getComputedTextLength()<=maxw)lo=m; else hi=m-1; }
+  t.textContent = lo>1 ? texto.slice(0,lo)+'…' : '';
+}
+
+// (Re)dibuja las etiquetas de una celda a partir de sus datos. El nombre del papel
+// es 'EMISORA SERIE' y la serie identifica la emision (en el gubernamental, su
+// vencimiento): si no cabe en un renglon se parte en dos antes que truncarla.
+// Se llama otra vez cuando la tipografia web termina de cargar, porque hasta
+// entonces getComputedTextLength() mide con la fuente de respaldo.
+function etiquetarGrupo(g){
+  g.querySelectorAll('text').forEach(t=>t.remove());
+  const d=g.dataset, maxg=+d.w-14;
+  const t=el('text',{class:'gl',x:(+d.x)+7,y:(+d.y)+14,fill:d.ink});
+  t.textContent=d.nom+' · '+d.pct; g.appendChild(t);
+  if(t.getComputedTextLength()>maxg){          // no cabe entero: recorta el nombre
+    t.textContent=d.pct;
+    const solo=t.getComputedTextLength();
+    if(solo<maxg-14){ t.textContent=d.nom; recorta(t,d.nom,maxg-solo-8);
+                      t.textContent = t.textContent ? t.textContent+' · '+d.pct : d.pct; }
+  }
+}
+
+function etiquetarCelda(g){
+  g.querySelectorAll('text').forEach(t=>t.remove());
+  const d=g.dataset, nom=d.nom, x=+d.x, y=+d.y, w=+d.w, h=+d.h, ink=d.ink;
+  if(!(w>38 && h>13))return;
+  const maxw=w-9, corte=nom.lastIndexOf(' ');
+  const p1=corte>0?nom.slice(0,corte):nom, p2=corte>0?nom.slice(corte+1):'';
+  const txt=(yy,cls,str)=>{const t=el('text',{class:cls,x:x+5,y:yy,fill:ink}); t.textContent=str; g.appendChild(t); return t};
+  const t=txt(y+(h>24?13:11),'lab',nom);
+  if(t.getComputedTextLength()>maxw){
+    if(p2 && h>=30){
+      t.textContent=p1; const t2=txt(y+24,'lab',p2);
+      if(t.getComputedTextLength()>maxw || t2.getComputedTextLength()>maxw){
+        t2.remove(); t.textContent=nom; recorta(t,nom,maxw);
+      } else if(h>48) txt(y+36,'pct',d.pct);
+    } else recorta(t,nom,maxw);
+  } else if(h>36) txt(y+25,'pct',d.pct);
+  if(!t.textContent) t.remove();
+}
+
+function drawDetalle(){
+  const P=document.getElementById('det'); P.innerHTML='';
+  const f=detFondo, meta=DF.fondos[f], d=DF.detalle[f];
+  const head=document.createElement('div'); head.className='det-head';
+  head.innerHTML='<h3>'+f+'</h3><span class="meta">'+meta.operadora+' · '+(meta.tipo||'')+(d?' · '+etqL(d.mes):'')+'</span>'+
+    '<div class="det-acciones"><button class="btn" id="btnPan">← Panorama de '+meta.operadora+'</button>'+
+    '<button class="btn primario" id="btnHist">Composición histórica →</button></div>';
+  P.appendChild(head);
+  head.querySelector('#btnPan').onclick=()=>{detFondo=null; vista='pan'; render()};
+  head.querySelector('#btnHist').onclick=()=>{detFondo=null; vista='comp'; ent=f; render()};
+  if(!d){ const v=document.createElement('div'); v.className='vacio'; v.textContent='Sin posiciones cargadas para este fondo'; P.appendChild(v); leyenda([]); return; }
+
+  const tot=d.total, pos=d.pos, iDeriv=CL_DET.indexOf('Derivados');
+  // agregados por clase; dentro de cada clase, las emisiones individuales
+  const grupos=new Map(); let deriv=0, vRep=0, nRep=0;
+  pos.forEach(p=>{
+    const [tv,nom,ti,v,cl]=p, tipo=DF.tipos_inversion[ti];
+    if(cl===iDeriv){deriv+=v; return}
+    if(tipo.startsWith('Operación de reporto')){vRep+=v; nRep++}
+    const g=grupos.get(cl)||{cl,v:0,items:[]}; g.v+=v; g.items.push({tv,nom,ti,v,cl}); grupos.set(cl,g);
+  });
+  const gl=[...grupos.values()].sort((a,b)=>b.v-a.v);
+  const top=gl[0];
+  const kp=document.createElement('div'); kp.className='det-kpis';
+  kp.innerHTML=
+    '<div class="kpi"><div class="l">Cartera reportada</div><div class="v">'+mdp(tot)+'</div><div class="s">millones de pesos, sin derivados</div></div>'+
+    '<div class="kpi"><div class="l">Emisiones</div><div class="v">'+pos.length+'</div><div class="s">'+grupos.size+' clases · '+new Set(pos.map(p=>p[0])).size+' tipos de instrumento</div></div>'+
+    '<div class="kpi"><div class="l">Clase principal</div><div class="v">'+(top?pct(top.v,tot):'—')+'</div><div class="s">'+(top?nc(CL_DET[top.cl]):'')+'</div></div>'+
+    (d.plazo!=null?'<div class="kpi"><div class="l">Plazo al vencimiento</div><div class="v">'+d.plazo.toFixed(2)+' años</div><div class="s">promedio ponderado · '+d.plazo_cob+'% de la cartera</div></div>':'')+
+    '<div class="kpi"><div class="l">Reporto</div><div class="v">'+pct(vRep,tot)+'</div><div class="s">'+nRep+' posiciones</div></div>'+
+    '<div class="kpi"><div class="l">Derivados (valuación)</div><div class="v'+(deriv<0?' neg':'')+'">'+mdp(deriv)+'</div><div class="s">fuera de la composición</div></div>';
+  P.appendChild(kp);
+
+  // ---- treemap anidado: clase (con etiqueta) -> emisión ----
+  const TW=980, TH=470, HH=19;
+  const sv=el('svg',{class:'uni',viewBox:'0 0 '+TW+' '+TH,preserveAspectRatio:'none',role:'img'});
+  sv.setAttribute('aria-label','Universo de '+f+' por clase y emisión');
+  const wrap=document.createElement('div'); wrap.style.position='relative'; wrap.appendChild(sv);
+  const dtip=document.createElement('div'); dtip.className='tip'; wrap.appendChild(dtip);
+  P.appendChild(wrap);   // en el DOM antes de dibujar: las etiquetas se miden, no se estiman
+  const tip2=(html,ev)=>{ dtip.innerHTML=html; dtip.style.opacity=1;
+    const pr=wrap.getBoundingClientRect(); let l=ev.clientX-pr.left+14, t=ev.clientY-pr.top+14;
+    if(l+dtip.offsetWidth>pr.width)l=ev.clientX-pr.left-dtip.offsetWidth-14;
+    dtip.style.left=Math.max(0,l)+'px'; dtip.style.top=t+'px'; };
+
+  squarify(gl.map(g=>({...g,k:g.cl})),0,0,TW,TH).forEach(gr=>{
+    const col=cssv(SER[gr.cl]), ink=inkSobre(col), apag=detFiltro&&!(detFiltro.t==='clase'&&detFiltro.v===gr.cl);
+    const conHead = gr.h>=44 && gr.w>=64;
+    if(conHead){
+      const gh=el('g',{class:(apag&&detFiltro.t==='clase')?'apagado':''});
+      gh.appendChild(el('rect',{class:'hd',x:gr.x+1,y:gr.y+1,width:gr.w-2,height:HH,fill:col}));
+      gh.classList.add('ghd');
+      Object.assign(gh.dataset,{nom:nc(CL_DET[gr.cl]),pct:pct(gr.v,tot),x:gr.x,y:gr.y,w:gr.w,ink:ink});
+      etiquetarGrupo(gh);
+      gh.style.cursor='pointer';
+      gh.addEventListener('click',()=>{detFiltro=(detFiltro&&detFiltro.t==='clase'&&detFiltro.v===gr.cl)?null:{t:'clase',v:gr.cl}; render()});
+      gh.addEventListener('mousemove',ev=>tip2('<div class="th">'+nc(CL_DET[gr.cl])+'</div><div class="tot"><span class="nm">'+
+        gr.items.length+' emisiones</span><span class="vv">'+pct(gr.v,tot)+' · '+mdp(gr.v)+' mdp</span></div>',ev));
+      gh.addEventListener('mouseleave',()=>{dtip.style.opacity=0});
+      sv.appendChild(gh);
+    }
+    const y0=gr.y+(conHead?HH+1:0), h0=gr.h-(conHead?HH+2:1);
+    if(h0<4||gr.w<4)return;
+    squarify(gr.items.map(it=>({...it,k:gr.cl})),gr.x+1,y0,gr.w-2,h0).forEach(r=>{
+      const apagado = detFiltro && !((detFiltro.t==='clase'&&detFiltro.v===r.cl)||(detFiltro.t==='tv'&&detFiltro.v===r.tv));
+      const g=el('g',{class:'cel'+(apagado?' apagado':'')});
+      g.appendChild(el('rect',{class:'c',x:r.x,y:r.y,width:r.w,height:r.h,fill:col,stroke:cssv('--surface')}));
+      Object.assign(g.dataset,{nom:r.nom,x:r.x,y:r.y,w:r.w,h:r.h,ink:ink,pct:pct(r.v,tot)});
+      etiquetarCelda(g);
+      g.addEventListener('mousemove',ev=>tip2('<div class="th">'+r.nom+'</div>'+
+        '<div class="r"><span class="sw" style="background:'+col+'"></span><span class="nm">'+nc(CL_DET[r.cl])+'</span></div>'+
+        '<div class="r"><span class="nm">'+(DF.tv[r.tv][1]||DF.tv[r.tv][0])+'</span></div>'+
+        '<div class="r"><span class="nm">'+DF.tipos_inversion[r.ti]+'</span></div>'+
+        '<div class="tot"><span class="nm">'+DF.tv[r.tv][0]+'</span><span class="vv">'+pct(r.v,tot)+' · '+mdp(r.v)+' mdp</span></div>',ev));
+      g.addEventListener('mouseleave',()=>{dtip.style.opacity=0});
+      g.addEventListener('click',()=>{detFiltro=(detFiltro&&detFiltro.t==='tv'&&detFiltro.v===r.tv)?null:{t:'tv',v:r.tv}; render()});
+      sv.appendChild(g);
+    });
+  });
+  // getComputedTextLength() puede medir de menos mientras se construye el subarbol
+  // (y con la tipografia de respaldo si la web aun no carga): se reajusta despues.
+  // refit es idempotente y no se re-registra, asi que no puede ciclarse.
+  const refit=()=>{ if(!document.getElementById('det').contains(sv))return;
+    sv.querySelectorAll('g.ghd').forEach(etiquetarGrupo);
+    sv.querySelectorAll('g.cel').forEach(etiquetarCelda); };
+  requestAnimationFrame(refit);
+  if(document.fonts) document.fonts.ready.then(refit);
+
+  const fl=document.createElement('div'); fl.className='filtro';
+  fl.innerHTML= detFiltro ? 'Mostrando sólo <b>'+(detFiltro.t==='clase'?nc(CL_DET[detFiltro.v]):(DF.tv[detFiltro.v][1]||DF.tv[detFiltro.v][0]))+
+      '</b> <button class="btn" id="quitaF">Quitar filtro</button>'
+    : 'Cada rectángulo es una emisión, con su nombre completo. Clic en la barra de una clase o en una emisión para filtrar la tabla.';
+  P.appendChild(fl); const qf=fl.querySelector('#quitaF'); if(qf)qf.onclick=()=>{detFiltro=null;render()};
+
+  // ---- tabla jerarquica: clase -> tipo de instrumento -> emision ----
+  const tabla=document.createElement('div'); tabla.className='tblscroll'; tabla.style.maxHeight='560px'; tabla.style.borderTop='0';
+  const filas=pos.filter(p=>!detFiltro||(detFiltro.t==='clase'?p[4]===detFiltro.v:p[0]===detFiltro.v));
+  const gr2=new Map();
+  filas.forEach(p=>{const g=gr2.get(p[4])||{v:0,tvs:new Map()}; g.v+=p[3];
+    const t=g.tvs.get(p[0])||{v:0,rows:[]}; t.v+=p[3]; t.rows.push(p); g.tvs.set(p[0],t); gr2.set(p[4],g)});
+  let h='<table><thead><tr><th>Clase / tipo de instrumento / emisión</th><th>Tipo de inversión</th><th>mdp</th><th>% cartera</th></tr></thead><tbody>';
+  [...gr2.entries()].sort((a,b)=>b[1].v-a[1].v).forEach(([cl,g])=>{
+    h+='<tr class="grp"><td>'+nc(CL_DET[cl])+'</td><td></td><td>'+mdp(g.v)+'</td><td>'+pct(g.v,tot)+'</td></tr>';
+    [...g.tvs.entries()].sort((a,b)=>b[1].v-a[1].v).forEach(([tv,t])=>{
+      h+='<tr class="sub"><td>&nbsp;&nbsp;'+(DF.tv[tv][1]||'')+' <span class="badge">'+DF.tv[tv][0]+'</span></td><td></td><td>'+mdp(t.v)+'</td><td>'+pct(t.v,tot)+'</td></tr>';
+      t.rows.sort((a,b)=>b[3]-a[3]).forEach(p=>{
+        h+='<tr><td class="emi">'+p[1]+'</td><td style="font-family:var(--sans);color:var(--muted)">'+DF.tipos_inversion[p[2]].replace('Inversión en ','').replace('Operación de ','').replace(' actuando como reportador','').replace(' actuando como prestamista','')+'</td><td'+(p[3]<0?' class="neg"':'')+'>'+mdp(p[3])+'</td><td>'+pct(p[3],tot)+'</td></tr>';
+      });
+    });
+  });
+  tabla.innerHTML=h+'</tbody></table>'; P.appendChild(tabla);
+  leyenda(gl.map(g=>({n:nc(CL_DET[g.cl]),col:cssv(SER[g.cl])})).concat(deriv!==0?[{n:'Derivados',col:cssv(SER[iDeriv])}]:[]));
 }
 
 // ---------- leyenda, hover, tabla ----------
@@ -585,6 +804,14 @@ function hover(get){
 }
 function buildTable(){
   const t=document.getElementById('table');
+  if(detFondo!=null){
+    const d=DF.detalle[detFondo]; if(!d){t.innerHTML='';return}
+    let h='<thead><tr><th>Emisora</th><th>TV</th><th>Tipo de instrumento</th><th>Clase</th><th>Tipo de inversión</th><th>Valor (pesos)</th><th>% cartera</th></tr></thead><tbody>';
+    [...d.pos].sort((a,b)=>b[3]-a[3]).forEach(p=>{
+      h+='<tr><td>'+p[1]+'</td><td>'+DF.tv[p[0]][0]+'</td><td style="text-align:left;font-family:var(--sans)">'+(DF.tv[p[0]][1]||'')+'</td><td style="text-align:left;font-family:var(--sans)">'+(p[4]>=0?nc(CL_DET[p[4]]):'—')+'</td><td style="text-align:left;font-family:var(--sans)">'+DF.tipos_inversion[p[2]]+'</td><td>'+p[3].toLocaleString('es-MX')+'</td><td>'+pct(p[3],d.total)+'</td></tr>';
+    });
+    t.innerHTML=h+'</tbody>'; return;
+  }
   if(vista==='pan'){
     const items=M0.panItems(grupo,ent);
     let h='<thead><tr><th>'+(modo==='consar'?'Siefore':'Fondo')+'</th><th>Mes</th>'+M0.clases.map(c=>'<th>'+nc(c)+'</th>').join('')+'<th>Suma</th></tr></thead><tbody>';

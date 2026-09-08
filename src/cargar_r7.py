@@ -38,6 +38,37 @@ ORDEN_CLASES = ["Deuda Gubernamental", "Deuda Privada Nacional", "Deuda Internac
 FUERA_COMPOSICION = ["Derivados"]
 
 
+# Tipos de valor en los que la SERIE es la fecha de vencimiento en formato AAMMDD.
+# Verificado sobre el crudo 2026: 99.05% del valor de estos TV parsea a una fecha
+# valida. En los CB corporativos (91, 94, 95, 93, CD...) la serie es el numero de
+# emision, NO el vencimiento, y por eso no se intenta convertir.
+TV_SERIE_ES_FECHA = {"M", "MS", "S", "BI", "LF", "LG", "LD", "IQ", "IM", "IS", "2U",
+                     "MP", "MC", "SP", "SC", "D1SP", "D2", "D2SP", "D4SP", "D5SP",
+                     "D7SP", "D8", "D8SP", "JE"}
+SERIE_SIN_VALOR = {"", "N", "*", "-", "NA"}   # 'sin serie' en el reporte
+
+
+def vencimiento(tv: str, serie) -> dt.date | None:
+    """Fecha de vencimiento leida de la serie, o None. Nunca la inventa."""
+    if tv not in TV_SERIE_ES_FECHA or not isinstance(serie, str):
+        return None
+    t = serie.strip()
+    if len(t) != 6 or not t.isdigit():
+        return None
+    try:
+        f = dt.date(2000 + int(t[:2]), int(t[2:4]), int(t[4:6]))
+    except ValueError:
+        return None
+    return f if dt.date(2015, 1, 1) <= f <= dt.date(2099, 12, 31) else None
+
+
+def nombre_completo(emisora, serie) -> str:
+    """'BONOS' + '300228' -> 'BONOS 300228'. La serie ES la identidad del papel."""
+    e = (emisora or "").strip()
+    t = (serie or "").strip() if isinstance(serie, str) else ""
+    return f"{e} {t}" if t and t.upper() not in SERIE_SIN_VALOR else e
+
+
 def fin_de_mes(p: int) -> dt.date:
     a, m = divmod(int(p), 100)
     return dt.date(a, 12, 31) if m == 12 else dt.date(a, m + 1, 1) - dt.timedelta(days=1)
@@ -236,6 +267,51 @@ def exportar(con):
                     if ser[c][i] is None:
                         ser[c][i] = 0.0
     operadoras = sorted({e[2] for e in ents})
+
+    # -------- detalle del ultimo mes de cada fondo, por instrumento --------
+    # Para el "universo" de cada fondo en la pagina: posiciones del ultimo mes en que
+    # reporto, agregadas por (tipo de valor, emisora, tipo de inversion). Compacto:
+    # [idx_tv, emisora, idx_tipo_inv, valor_mxn, idx_clase]. Los derivados van con
+    # su valor firmado y clase 'Derivados'; el total excluye derivados (denominador).
+    det_rows = con.execute("""
+        WITH ult AS (SELECT entity_id, max(as_of_date) f FROM holdings WHERE source='CNBV' GROUP BY 1),
+        h AS (SELECT h.entity_id, h.as_of_date, h.tipo_inversion, h.valor_total_mxn,
+                     i.tv, i.tipo_valor_desc, i.emisora, i.serie
+              FROM holdings h JOIN ult ON ult.entity_id=h.entity_id AND ult.f=h.as_of_date
+              JOIN instruments i USING (instrument_id) WHERE h.source='CNBV'),
+        c AS (SELECT h.*, coalesce(m2.asset_class, m1.asset_class) ac FROM h
+              LEFT JOIN asset_class_map m1 ON m1.source='CNBV' AND m1.tv_pattern=h.tv AND m1.emisora_pattern='*'
+              LEFT JOIN asset_class_map m2 ON m2.source='CNBV' AND m2.tv_pattern=h.tv AND m2.emisora_pattern=h.emisora)
+        SELECT entity_id, as_of_date, tv, any_value(tipo_valor_desc), emisora, serie, tipo_inversion, ac,
+               sum(valor_total_mxn)
+        FROM c GROUP BY entity_id, as_of_date, tv, emisora, serie, tipo_inversion, ac
+        ORDER BY entity_id, 9 DESC""").fetchall()
+    tvs, tv_idx, tipos, tipo_idx = [], {}, [], {}
+    clases_det = ORDEN_CLASES + FUERA_COMPOSICION
+    detalle = {}
+    for eid, f, tv, desc, em, se, ti, ac, v in det_rows:
+        if tv not in tv_idx:
+            tv_idx[tv] = len(tvs); tvs.append([tv, desc or ""])
+        if ti not in tipo_idx:
+            tipo_idx[ti] = len(tipos); tipos.append(ti)
+        d = detalle.setdefault(nom[eid], {"mes": f.isoformat(), "total": 0.0, "pos": [],
+                                          "_pz": 0.0, "_pzv": 0.0})
+        if ti != DERIV:
+            d["total"] += v
+        ven = vencimiento(tv, se)
+        if ven is not None and ti != DERIV and v > 0:
+            d["_pz"] += v * ((ven - f).days / 365.25)
+            d["_pzv"] += v
+        d["pos"].append([tv_idx[tv], nombre_completo(em, se), tipo_idx[ti], round(v),
+                         clases_det.index(ac) if ac in clases_det else -1])
+    for d in detalle.values():
+        d["total"] = round(d["total"])
+        # Plazo promedio al vencimiento, ponderado por valor. Solo sobre el papel
+        # cuya serie es una fecha; se declara que fraccion de la cartera cubre.
+        if d["_pzv"] > 0 and d["total"] > 0:
+            d["plazo"] = round(d["_pz"] / d["_pzv"], 2)
+            d["plazo_cob"] = round(100 * d["_pzv"] / d["total"], 1)
+        d.pop("_pz"); d.pop("_pzv")
     import json
     (DATOS / "pagina_fondos.json").write_text(json.dumps({
         "fuente": "CNBV · Portafolio de Información · R03 J-0311 Cartera de inversión (fondos de inversión)",
@@ -243,7 +319,8 @@ def exportar(con):
         "actualizado": dt.date.today().isoformat(),
         "reglas_catalogo": con.execute("SELECT count(*) FROM asset_class_map WHERE source='CNBV'").fetchone()[0],
         "fechas": fechas, "clases": ORDEN_CLASES, "fuera_composicion": FUERA_COMPOSICION,
-        "operadoras": operadoras, "fondos": fondos}, ensure_ascii=False, separators=(",", ":")), "utf-8")
+        "operadoras": operadoras, "fondos": fondos,
+        "tv": tvs, "tipos_inversion": tipos, "detalle": detalle}, ensure_ascii=False, separators=(",", ":")), "utf-8")
     print(f"\nParquet y pagina_fondos.json escritos en datos/  ({len(fondos)} fondos, {len(fechas)} meses)")
 
 
