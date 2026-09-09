@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Carteras institucionales</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
@@ -141,7 +142,11 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
 .badge{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;
   border:1px solid var(--rule);border-radius:2px;color:var(--muted);vertical-align:middle;margin-left:6px}
 .tm.click{cursor:pointer;border-radius:3px;padding:6px;margin:-6px;transition:background .12s}
-.tm.click:hover{background:var(--raised);box-shadow:0 0 0 1px var(--rule)}
+.tm.click:hover,.tm.click:focus-visible{background:var(--raised);box-shadow:0 0 0 1px var(--axis);outline:none}
+.tm .ver{font-family:var(--sans);font-size:11px;color:var(--accent);opacity:0;transition:opacity .12s;
+  white-space:nowrap;font-weight:500}
+.tm.click:hover .ver,.tm.click:focus-visible .ver{opacity:1}
+@media (hover:none){.tm .ver{opacity:1}}
 
 /* Detalle de un fondo: su universo por tipo de instrumento */
 .det{display:flex;flex-direction:column;gap:16px}
@@ -444,7 +449,9 @@ function render(){
   }
   if(pan){
     T.textContent=M0.tituloPan(ent,grupo);
-    Hn.textContent='Un treemap por '+(modo==='consar'?'siefore':'fondo')+' · el área de cada rectángulo es su % '+M0.sumaLabel;
+    Hn.textContent = modo==='cnbv'
+      ? 'Un treemap por fondo · haz clic en cualquiera para abrir su universo, instrumento por instrumento'
+      : 'Un treemap por siefore · haz clic en cualquiera para ver su composición histórica';
     drawPanorama();
   } else if(vista==='comp'){
     T.textContent='Composición · '+ent+' · '+grupo;
@@ -594,6 +601,9 @@ function drawPanorama(){
     const sm=document.createElement('div'); sm.className='sum';
     sm.innerHTML= modo==='consar' ? 'Suma de las ocho: <b>'+suma.toFixed(1)+'%</b> '+M0.sumaLabel
                                   : (DF.fondos[it.e].tipo||'')+' · suma <b>'+suma.toFixed(1)+'%</b>';
+    const ver=document.createElement('span'); ver.className='ver';
+    ver.textContent = modo==='cnbv' ? 'ver instrumentos →' : 'ver histórico →';
+    sm.appendChild(document.createTextNode('  ')); sm.appendChild(ver);
     card.appendChild(sm);
     card.classList.add('click'); card.tabIndex=0; card.setAttribute('role','button');
     card.title = modo==='cnbv' ? 'Abrir el universo de '+it.e : 'Ver la composición histórica de '+it.e+' en '+it.full;
