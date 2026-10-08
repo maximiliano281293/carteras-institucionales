@@ -135,6 +135,10 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
 .secciones button+button{border-left:1px solid var(--rule)}
 .secciones button[aria-pressed="true"]{background:var(--ink);color:var(--ground);font-weight:500}
 .secciones button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.secciones a{font-family:var(--sans);font-size:13px;padding:8px 16px;background:var(--surface);color:var(--ink2);
+  text-decoration:none;border-left:1px solid var(--rule);display:flex;align-items:center}
+.secciones a:hover{color:var(--ink)}
+.secciones a:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .note.info{border-left-color:var(--accent)}
 .busca{display:flex;gap:6px;align-items:center}
 .busca input{font-family:var(--mono);font-size:12.5px;padding:6px 9px;border:1px solid var(--rule);border-radius:2px;
@@ -189,6 +193,7 @@ footer{color:var(--muted);font-size:12px;border-top:1px solid var(--rule);paddin
   <div class="secciones" role="tablist" aria-label="Fuente" id="secciones">
     <button role="tab" data-m="consar" aria-pressed="true">Afores · CONSAR</button>
     <button role="tab" data-m="cnbv" aria-pressed="false">Fondos de inversión · CNBV</button>
+    <a href="/fi/">Tasas · FI</a>
   </div>
 </header>
 
