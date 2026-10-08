@@ -125,7 +125,7 @@ footer a{color:var(--ink2)}
   <p>Todo sale de <b>fuentes públicas</b>. La curva <b>Gubernamental MX</b> es la tasa de la <b>subasta primaria</b> de Cetes y Bonos M:
   cada nodo se subasta semanal o con menos frecuencia, así que la curva de un día usa <b>la última subasta vigente de cada plazo</b>
   (el tooltip dice de qué fecha es). La <b>TIIE</b> llega hasta 182 días y SOFR es sólo el overnight.
-  <b>No hay curvas swap</b> (IRS TIIE de Fondeo, SOFR OIS): esas vienen de proveedores de precios y no se publican aquí.
+  La curva <b>Swaps TIIE de Fondeo</b> es el <b>precio de liquidación</b> diario que publica MexDer para cada plazo (1M a 30A, con 2 decimales); la <b>cupón cero</b> sale de esa curva por bootstrapping. Para SOFR no hay curva swap pública: sólo el overnight.
   No se imputó ningún dato; los huecos quedan como huecos.</p>
 </div>
 
@@ -231,7 +231,7 @@ const ndias=(a,b)=>(Date.parse(b)-Date.parse(a))/864e5;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pb=(v,d=1)=>v==null||isNaN(v)?'–':(v>0?'+':'')+v.toFixed(d);
 const cls=v=>v==null||isNaN(v)?'na':(v>0.05?'up':(v<-0.05?'dn':''));
-const NOMBRE={MX_GUB:'Gub MX',TIIE:'TIIE',UST:'Treasuries',SOFR:'SOFR'};
+const NOMBRE={TIIEF:'Swaps TIIEF',TIIEF_CERO:'TIIEF cero',MX_GUB:'Gub MX',TIIE:'TIIE',UST:'Treasuries',SOFR:'SOFR'};
 
 // ---------- índice: por curva y nodo, sólo observaciones reales ----------
 Object.values(C).forEach(c=>{
@@ -325,7 +325,7 @@ function ejeTiempo(a,b){const ya=+a.slice(0,4),yb=+b.slice(0,4),span=ndias(a,b),
   return t}
 
 // ---------- monitor ----------
-const MON=[['TIIE de Fondeo','TIIE','1D'],['TIIE 28','TIIE','1M'],['Cetes 28','MX_GUB','1M'],['Cetes 364','MX_GUB','1A'],
+const MON=[['TIIE de Fondeo','TIIE','1D'],['IRS TIIEF 1A','TIIEF','1A'],['IRS TIIEF 2A','TIIEF','2A'],['IRS TIIEF 5A','TIIEF','5A'],['IRS TIIEF 10A','TIIEF','10A'],['TIIE 28','TIIE','1M'],['Cetes 28','MX_GUB','1M'],['Cetes 364','MX_GUB','1A'],
   ['Bono M 10A','MX_GUB','10A'],['Bono M 30A','MX_GUB','30A'],['SOFR','SOFR','1D'],['UST 2A','UST','2A'],['UST 10A','UST','10A']];
 function monitor(){
   const d=ultFecha,fm=finMesAnt(d),fa=finAnioAnt(d);
@@ -347,12 +347,12 @@ function monitor(){
 }
 
 // ---------- estado ----------
-const S={tab:'1',base1:ultFecha,pre1:['FM'],ext1:[],base2:ultFecha,cv3:'MX_GUB',nd3:['1M','3M','1A','2A','5A','10A'],pe3:'1A',ve3:'niv',
+const S={tab:'1',base1:ultFecha,pre1:['FM'],ext1:[],base2:ultFecha,cv3:C.TIIEF?'TIIEF':'MX_GUB',nd3:['1M','3M','1A','2A','5A','10A'],pe3:'1A',ve3:'niv',
   base4:ultFecha,comp4:finMesAnt(ultFecha),hz4:3,pe4:'2A'};
 const PRE={ANT:'Dato anterior','1S':'1 semana','1M':'1 mes',FM:'Fin de mes ant.',FA:'Fin de año ant.'};
 function fechaPreset(k,cv,d){if(k==='1S')return addDays(d,-7);if(k==='1M')return addMonths(d,-1);if(k==='FM')return finMesAnt(d);if(k==='FA')return finAnioAnt(d);
   if(k==='ANT'){const f=C[cv].fechas;const i=bs(f,d);return i>0?f[i-1]:null}return null}
-const CURVAS1=['MX_GUB','TIIE','UST'].filter(c=>C[c]);
+const CURVAS1=['TIIEF','TIIEF_CERO','MX_GUB','TIIE','UST'].filter(c=>C[c]);
 
 function chips(host,items,sel,multi,onch){const h=document.getElementById(host);h.innerHTML='';
   items.forEach(([k,l])=>{const b=document.createElement('button');b.className='chip';b.textContent=l;
@@ -417,7 +417,7 @@ function v2(){
 const PER={'3M':3,'6M':6,'1A':12,'2A':24,'5A':60,'10A':120,'Todo':0};
 function desdePer(k,hasta){return PER[k]?addMonths(hasta,-PER[k]):priFecha}
 function v3(){
-  const disp=['MX_GUB','TIIE','UST','SOFR'].filter(c=>C[c]);
+  const disp=['TIIEF','TIIEF_CERO','MX_GUB','TIIE','UST','SOFR'].filter(c=>C[c]);
   chips('cv3',disp.map(c=>[c,NOMBRE[c]]),S.cv3,false,v=>{S.cv3=v;const ok=C[v].nodos.map(n=>n.et);S.nd3=S.nd3.filter(x=>ok.includes(x));
     if(!S.nd3.length)S.nd3=ok.slice(0,Math.min(6,ok.length));v3()});
   const c=C[S.cv3];
@@ -484,7 +484,7 @@ function v4(){
       series:[{n:'Diferencial',c:col,w:1.8,pts,lab:pts[pts.length-1].y.toFixed(0)}],hx:pts.map(p=>p.x),
       tip:k=>`<div class="th">${fmtL(pts[k].f)}</div>`+tipRow(col,'Diferencial',pts[k].y.toFixed(0)+' pb')})});
   // carry + roll
-  const cr={};[['MX_GUB','c4e','h4e'],['UST','c4f','h4f']].forEach(([cv,id,hid])=>{
+  const CMX=C.TIIEF?'TIIEF':'MX_GUB';const cr={};[[CMX,'c4e','h4e'],['UST','c4f','h4f']].forEach(([cv,id,hid])=>{
     if(!C[cv])return;const r=carryRoll(cv,S.base4,S.hz4);cr[cv]=r;const ets=Object.keys(r);
     document.getElementById(hid).textContent='Carry y roll-down · '+C[cv].nombre+' · '+hz;
     const ca=ets.map(e=>r[e]?r[e].carry:null),ro=ets.map(e=>r[e]?r[e].roll:null),to=ets.map(e=>r[e]?r[e].carry+r[e].roll:null);
@@ -497,7 +497,7 @@ function v4(){
   const filas=[['Gub MX %',e=>{const q=vigE('MX_GUB',e,S.base4);return q?q.t:null},'niv'],['Treasuries %',e=>{const q=vigE('UST',e,S.base4);return q?q.t:null},'niv'],
     ['Diferencial (pb)',e=>{const i=COMUNES.indexOf(e);return b[i]?b[i].v:null},'pb0'],['Δ diferencial (pb)',e=>{const i=COMUNES.indexOf(e);return b[i]&&cp[i]?b[i].v-cp[i].v:null},'d'],
     ['Carry MX vs US '+hz+' (pb)',e=>{const i=COMUNES.indexOf(e);return b[i]?b[i].v*S.hz4/12:null},'d'],
-    ['Carry+roll Gub MX (pb)',e=>cr.MX_GUB&&cr.MX_GUB[e]?cr.MX_GUB[e].carry+cr.MX_GUB[e].roll:null,'d'],
+    [(C.TIIEF?'Carry+roll IRS TIIEF':'Carry+roll Gub MX')+' (pb)',e=>cr[CMX]&&cr[CMX][e]?cr[CMX][e].carry+cr[CMX][e].roll:null,'d'],
     ['Carry+roll UST (pb)',e=>cr.UST&&cr.UST[e]?cr.UST[e].carry+cr.UST[e].roll:null,'d']];
   let h='<tr><th></th>'+COMUNES.map(e=>`<th>${e}</th>`).join('')+'</tr>';
   filas.forEach(([n,f,t])=>{h+=`<tr><td>${n}</td>`+COMUNES.map(e=>{const v=f(e);if(v==null)return'<td class="na">–</td>';

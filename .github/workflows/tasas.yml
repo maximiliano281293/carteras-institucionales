@@ -1,6 +1,6 @@
 name: Actualizar tasas (FI)
 
-# Cosecha Banxico, NY Fed y Treasury, recarga, reconstruye la página y hace commit.
+# Cosecha Banxico, NY Fed, Treasury y el boletín de swaps de MexDer, recarga, reconstruye la página y hace commit.
 # Corre de martes a sábado a las 7:10 (hora CDMX): para entonces Banxico ya publicó
 # la TIIE de Fondeo del día hábil anterior.
 # Requiere el secreto BANXICO_TOKEN (Settings -> Secrets and variables -> Actions).
@@ -45,6 +45,10 @@ jobs:
             python src/cosechar_tasas.py
           fi
 
+      - name: Cosechar boletín de swaps de MexDer (TIIE de Fondeo)
+        continue-on-error: true   # si MexDer no responde, se publica lo demás
+        run: python src/cosechar_mexder.py
+
       - name: Cargar y exportar
         run: python src/cargar_tasas.py
 
@@ -55,7 +59,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add crudos/tasas_*.parquet datos/tasas.parquet datos/pagina_fi.json docs/
+          git add crudos/tasas_*.parquet crudos/mexder_swaps_*.parquet datos/tasas.parquet datos/pagina_fi.json docs/
           if git diff --staged --quiet; then
             echo "Sin cambios en tasas."
             exit 0

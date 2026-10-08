@@ -37,6 +37,15 @@ python src/cargar_tasas.py                     # -> datos/tasas.parquet + datos/
 python src/construir_pagina.py                 # -> docs/index.html + docs/fi/index.html
 ```
 
+**Swaps de TIIE de Fondeo (MexDer).** `src/cosechar_mexder.py` baja el Boletín de
+Swaps diario: precio de liquidación de los 390 contratos `nF1` (n × 28 días, de 1M a
+30A). `cargar_tasas.py` hace bootstrapping (cupones cada 28 días, act/360) y publica
+la curva par (`TIIEF`) y la cupón cero (`TIIEF_CERO`). MexDer no tiene archivo
+histórico: la historia se junta día a día. Para arrancar con historia, se puede
+importar UNA vez desde una base propia con `src/importar_historia_pg.py` (corre
+local; ver el encabezado del script). Si esos datos vienen de un proveedor de
+precios, revisar la licencia antes de publicarlos: el repo y el sitio son públicos.
+
 Lo que hay que saber: la curva gubernamental MX es de **subasta** (semanal o
 menos), así que la curva de un día usa la última subasta vigente de cada plazo y
 lo dice. **No hay curvas swap** (IRS TIIE de Fondeo, SOFR OIS): no son públicas.
