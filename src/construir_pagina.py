@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Inyecta datos/pagina.json en web/plantilla.html y escribe docs/index.html.
+Si existe datos/pagina_fi.json, también construye la sección de tasas en docs/fi/index.html.
 
 La pagina queda autocontenida (los datos van dentro del HTML), asi funciona
 igual en Cloudflare Pages, GitHub Pages o como artifact, sin depender de que
@@ -23,3 +24,13 @@ html = (RAIZ / "web" / "plantilla.html").read_text("utf-8").replace(
     "__DATOS_FONDOS__", fondos.read_text("utf-8"))
 (salida / "index.html").write_text(html, "utf-8")
 print(f"docs/index.html  ({len(html)/1024:.0f} KB)")
+
+# Sección "Tasas · FI" (opcional: sólo si ya se cargaron tasas)
+fi = RAIZ / "datos" / "pagina_fi.json"
+if fi.exists():
+    (salida / "fi").mkdir(exist_ok=True)
+    html_fi = (RAIZ / "web" / "fi.html").read_text("utf-8").replace("__DATOS_FI__", fi.read_text("utf-8"))
+    (salida / "fi" / "index.html").write_text(html_fi, "utf-8")
+    print(f"docs/fi/index.html  ({len(html_fi)/1024:.0f} KB)")
+else:
+    print("datos/pagina_fi.json no existe: se omite la sección de tasas (corre src/cosechar_tasas.py y src/cargar_tasas.py)")

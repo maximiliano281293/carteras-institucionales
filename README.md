@@ -18,6 +18,31 @@ Cada corrida deja un commit. **El historial de git es el log de versiones**: nad
 se sobrescribe, y se puede ver el diff exacto de qué cambió entre una descarga y
 otra — que importa porque las fuentes revisan cifras hacia atrás.
 
+## Tasas · FI (sección nueva, en `/fi/`)
+
+Curvas de referencia de México y EE.UU. con datos **públicos**: TIIE de Fondeo y
+TIIE 28/91/182, Cetes y Bonos M (tasa de subasta primaria) de Banxico; SOFR de
+la NY Fed; curva par de Treasuries. Cuatro vistas: curvas contra cualquier fecha
+(default: fin de mes anterior), cambios en pb por nodo, histórico por nodo, y
+diferencial México − EE.UU. con carry y roll-down.
+
+**Actions → "Actualizar tasas (FI)" → Run workflow** (la primera vez, marca
+"Bajar toda la historia"). Después corre sola de martes a sábado a las 7:10 CDMX.
+Necesita el secreto `BANXICO_TOKEN` (token gratis de la API SIE).
+
+```bash
+export BANXICO_TOKEN=...                       # https://www.banxico.org.mx/SieAPIRest/service/v1/token
+python src/cosechar_tasas.py --historia-completa   # -> crudos/tasas_AAAAMMDD.parquet
+python src/cargar_tasas.py                     # -> datos/tasas.parquet + datos/pagina_fi.json
+python src/construir_pagina.py                 # -> docs/index.html + docs/fi/index.html
+```
+
+Lo que hay que saber: la curva gubernamental MX es de **subasta** (semanal o
+menos), así que la curva de un día usa la última subasta vigente de cada plazo y
+lo dice. **No hay curvas swap** (IRS TIIE de Fondeo, SOFR OIS): no son públicas.
+Los ids de Banxico se verifican contra el título de la serie en cada corrida; si
+uno no corresponde, la corrida falla en vez de cargar otra cosa.
+
 ## Correrlo a mano
 
 ```bash
@@ -45,7 +70,10 @@ src/cosechar_consar.py    baja las series de SISET por el endpoint directo
 src/cargar.py             parsea, carga, valida y exporta (CONSAR)
 src/extraer_r7.py         saca el universo completo del .xlsm de CNBV sin abrir Excel
 src/cargar_r7.py          holdings -> allocations por clase, con el catálogo y el denominador
-src/construir_pagina.py   inyecta los datos de ambas fuentes en la plantilla
+src/construir_pagina.py   inyecta los datos de ambas fuentes en la plantilla (y la de tasas en docs/fi/)
+src/cosechar_tasas.py     baja Banxico SIE, NY Fed (SOFR) y Treasury -> crudos/tasas_*.parquet
+src/cargar_tasas.py       junta snapshots (gana el más reciente) -> tasas.parquet + pagina_fi.json
+web/fi.html               la sección de tasas (autocontenida, sin dependencias)
 catalogos/asset_class_map_cnbv.csv   tipo de valor (+ emisora para ETFs) -> clase de activo
 catalogos/pendientes_etf_revision.csv ETFs que aún caen en la clase por default
 web/plantilla.html        la página (HTML autocontenido, sin dependencias)

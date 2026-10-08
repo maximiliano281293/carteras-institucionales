@@ -1,0 +1,65 @@
+name: Actualizar tasas (FI)
+
+# Cosecha Banxico, NY Fed y Treasury, recarga, reconstruye la página y hace commit.
+# Corre de martes a sábado a las 7:10 (hora CDMX): para entonces Banxico ya publicó
+# la TIIE de Fondeo del día hábil anterior.
+# Requiere el secreto BANXICO_TOKEN (Settings -> Secrets and variables -> Actions).
+on:
+  workflow_dispatch:
+    inputs:
+      historia_completa:
+        description: "Bajar toda la historia (primera vez)"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "10 13 * * 2-6"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publicar-datos
+  cancel-in-progress: false
+
+jobs:
+  tasas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Cosechar tasas
+        env:
+          BANXICO_TOKEN: ${{ secrets.BANXICO_TOKEN }}
+        run: |
+          if [ "${{ inputs.historia_completa }}" = "true" ]; then
+            python src/cosechar_tasas.py --historia-completa
+          else
+            python src/cosechar_tasas.py
+          fi
+
+      - name: Cargar y exportar
+        run: python src/cargar_tasas.py
+
+      - name: Reconstruir la página
+        run: python src/construir_pagina.py
+
+      - name: Publicar el cambio
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crudos/tasas_*.parquet datos/tasas.parquet datos/pagina_fi.json docs/
+          if git diff --staged --quiet; then
+            echo "Sin cambios en tasas."
+            exit 0
+          fi
+          git commit -m "datos: tasas $(date -u +%Y-%m-%d)"
+          git pull --rebase
+          git push
