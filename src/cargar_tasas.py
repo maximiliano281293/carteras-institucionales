@@ -3,6 +3,7 @@
 Junta los snapshots crudos de tasas (crudos/tasas_*.parquet), deja la versión
 más reciente de cada dato y exporta:
 
+    datos/carteras.duckdb   tabla `tasas` (la misma base de las Afores y los fondos)
     datos/tasas.parquet     tabla larga: fecha, curva, nodo, plazo_dias, tasa, fuente, serie
     datos/pagina_fi.json    lo que consume la sección "Tasas · FI"
 
@@ -42,7 +43,9 @@ def main():
     archivos = sorted(CRUDOS.glob("tasas_*.parquet"))
     if not archivos:
         sys.exit("No hay crudos/tasas_*.parquet. Corre primero src/cosechar_tasas.py")
-    con = duckdb.connect()
+    DATOS.mkdir(exist_ok=True)
+    con = duckdb.connect(str(DATOS / "carteras.duckdb"))
+    con.execute("DROP TABLE IF EXISTS tasas")
     lista = ", ".join(f"'{p.as_posix()}'" for p in archivos)
     con.execute(f"""
         CREATE TABLE tasas AS
@@ -55,7 +58,6 @@ def main():
         ) WHERE rn = 1
         ORDER BY curva, plazo_dias, fecha
     """)
-    DATOS.mkdir(exist_ok=True)
     con.execute(f"COPY tasas TO '{(DATOS / 'tasas.parquet').as_posix()}' (FORMAT parquet)")
 
     resumen = con.execute("""SELECT curva, count(*), min(fecha), max(fecha) FROM tasas GROUP BY 1 ORDER BY 1""").fetchall()
@@ -83,7 +85,8 @@ def main():
         }
     (DATOS / "pagina_fi.json").write_text(json.dumps(pagina, separators=(",", ":"), ensure_ascii=False), "utf-8")
     kb = (DATOS / "pagina_fi.json").stat().st_size / 1024
-    print(f"datos/tasas.parquet · datos/pagina_fi.json ({kb:.0f} KB)")
+    con.close()
+    print(f"datos/carteras.duckdb (tabla tasas) · datos/tasas.parquet · datos/pagina_fi.json ({kb:.0f} KB)")
 
 
 if __name__ == "__main__":
