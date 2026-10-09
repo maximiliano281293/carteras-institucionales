@@ -37,11 +37,29 @@ python src/cargar_tasas.py                     # -> datos/tasas.parquet + datos/
 python src/construir_pagina.py                 # -> docs/index.html + docs/fi/index.html
 ```
 
+**Swaps de TIIE de Fondeo (MexDer).** `src/cosechar_mexder.py` baja el Boletín de
+Swaps diario: precio de liquidación de los 390 contratos `nF1` (n × 28 días, de 1M a
+30A). `cargar_tasas.py` hace bootstrapping (cupones cada 28 días, act/360) y publica
+la curva par (`TIIEF`) y la cupón cero (`TIIEF_CERO`). MexDer no tiene archivo
+histórico: la historia se junta día a día. Para arrancar con historia, se puede
+importar UNA vez desde una base propia con `src/importar_historia_pg.py` (corre
+local; ver el encabezado del script). Si esos datos vienen de un proveedor de
+precios, revisar la licencia antes de publicarlos: el repo y el sitio son públicos.
+
 Lo que hay que saber: la curva gubernamental MX es de **subasta** (semanal o
 menos), así que la curva de un día usa la última subasta vigente de cada plazo y
 lo dice. **No hay curvas swap** (IRS TIIE de Fondeo, SOFR OIS): no son públicas.
 Los ids de Banxico se verifican contra el título de la serie en cada corrida; si
 uno no corresponde, la corrida falla en vez de cargar otra cosa.
+
+## Risk premium (sección nueva, en `/erp/`)
+
+Equity risk premium = earnings yield forward (EPS estimado ÷ precio) − bono de gobierno
+a 10A (UST 10A para el S&P 500, Bono M 10A para el IPC, tomados de la sección de tasas).
+**EPS y precios los carga el usuario en la página** (pegar desde Excel o subir CSV) y se
+guardan **sólo en su navegador** (localStorage): no pasan por el repo ni por el servidor,
+así que la página pública no publica ningún dato de EPS. Hay botones de respaldo,
+plantilla y borrado. Con FY1 y FY2 se usa EPS 12 meses mezclado (sin saltos de rollover).
 
 ## Correrlo a mano
 
