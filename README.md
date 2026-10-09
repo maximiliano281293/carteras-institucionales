@@ -52,6 +52,15 @@ lo dice. **No hay curvas swap** (IRS TIIE de Fondeo, SOFR OIS): no son públicas
 Los ids de Banxico se verifican contra el título de la serie en cada corrida; si
 uno no corresponde, la corrida falla en vez de cargar otra cosa.
 
+## Risk premium (sección nueva, en `/erp/`)
+
+Equity risk premium = earnings yield forward (EPS estimado ÷ precio) − bono de gobierno
+a 10A (UST 10A para el S&P 500, Bono M 10A para el IPC, tomados de la sección de tasas).
+**EPS y precios los carga el usuario en la página** (pegar desde Excel o subir CSV) y se
+guardan **sólo en su navegador** (localStorage): no pasan por el repo ni por el servidor,
+así que la página pública no publica ningún dato de EPS. Hay botones de respaldo,
+plantilla y borrado. Con FY1 y FY2 se usa EPS 12 meses mezclado (sin saltos de rollover).
+
 ## Correrlo a mano
 
 ```bash
